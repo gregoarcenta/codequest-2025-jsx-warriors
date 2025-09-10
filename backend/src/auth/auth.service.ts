@@ -36,6 +36,7 @@ export class AuthService {
 
     const user = this.usersRepository.create({
       ...signUpDto,
+      lastLoginAt: new Date(),
       password: await bcrypt.hash(signUpDto.password, 10),
     });
 
@@ -74,6 +75,8 @@ export class AuthService {
     if (!isValidPassword)
       throw new UnauthorizedException('Credentials are not valid (password)');
 
+    await this.updateLastLogin(user.id);
+
     return {
       user: await this.findUser(user.id),
       accessToken: await this.getJwtToken({ id: user.id }),
@@ -82,6 +85,8 @@ export class AuthService {
 
   async signInWithDiscord(discordUser: DiscordUser): Promise<UserResponse> {
     const user = await this.findOrCreateUserDiscord(discordUser);
+
+    await this.updateLastLogin(user.id);
 
     const accessToken = await this.getJwtToken({ id: user.id });
 
@@ -111,6 +116,7 @@ export class AuthService {
 
   async findOrCreateUserDiscord(discordUser: DiscordUser): Promise<User> {
     const { id: discordId, email, global_name } = discordUser;
+    const avatarUrl = `https://cdn.discordapp.com/avatars/${discordId}/${discordUser.avatar}.png`;
 
     try {
       // Buscar primero por email
@@ -120,15 +126,17 @@ export class AuthService {
         // Si el usuario existe pero no tiene discordId, lo actualizamos
         if (!user.discordId) {
           user.discordId = discordId;
-          await this.usersRepository.save(user);
+          user.avatarUrl = avatarUrl;
         }
-        return user;
+
+        return await this.usersRepository.save(user);
       }
 
       // Crear usuario nuevo
       return await this.usersRepository.save(
         this.usersRepository.create({
           discordId,
+          avatarUrl,
           fullName: global_name,
           email,
         }),
@@ -140,5 +148,12 @@ export class AuthService {
 
   private async getJwtToken(payload: IPayloadJwt): Promise<string> {
     return await this.jwtService.signAsync(payload);
+  }
+
+  async updateLastLogin(userId: string): Promise<void> {
+    await this.usersRepository.query(
+      `UPDATE users SET last_login_at = NOW() WHERE id = $1`,
+      [userId],
+    );
   }
 }
