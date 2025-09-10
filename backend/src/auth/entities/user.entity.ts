@@ -13,10 +13,24 @@ export class User {
   id: string;
 
   @ApiProperty({
+    description: 'User discordId',
+    example: '906094772663091331',
+    uniqueItems: true,
+  })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    unique: true,
+    nullable: true,
+    name: 'discord_id',
+  })
+  discordId: string;
+
+  @ApiProperty({
     description: 'User fullName',
     example: 'user full name',
   })
-  @Column({ type: 'varchar', length: 150 })
+  @Column({ type: 'varchar', length: 150, name: 'full_name' })
   fullName: string;
 
   @ApiProperty({
@@ -27,7 +41,7 @@ export class User {
   @Column({ type: 'varchar', length: 254, unique: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 60, select: false })
+  @Column({ type: 'varchar', length: 60, select: false, nullable: true })
   password: string;
 
   @ApiProperty({
@@ -35,13 +49,13 @@ export class User {
     example: true,
     default: true,
   })
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: 'boolean', default: true, name: 'is_active' })
   isActive: boolean;
 
   @ApiProperty({
     description: 'User roles',
     example: ['user'],
-    default:['user'],
+    default: ['user'],
   })
   @Column({ type: 'enum', enum: Role, array: true, default: [Role.USER] })
   roles: Role[];

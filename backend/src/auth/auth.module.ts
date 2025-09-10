@@ -8,10 +8,11 @@ import { JwtConfigService } from '../config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { HandlerException } from '../common/exceptions/handler.exception';
+import { DiscordStrategy } from './strategies/discord.strategy';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, HandlerException],
+  providers: [AuthService, JwtStrategy, DiscordStrategy, HandlerException],
   imports: [
     TypeOrmModule.forFeature([User]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
