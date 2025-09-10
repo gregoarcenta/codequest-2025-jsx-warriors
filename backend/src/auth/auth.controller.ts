@@ -24,7 +24,9 @@ import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { ApiDiscordSignUpResponse } from '../swagger/decorators/auth/api-discord-signin.decorator';
 import { ApiDiscordCallbackResponse } from '../swagger/decorators/auth/api-discord-callback.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
