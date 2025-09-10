@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
-  HttpCode,
-  Post,
   Get,
+  HttpCode,
   HttpStatus,
+  Post,
+  Res,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -16,10 +18,19 @@ import {
   ApiSignInResponse,
   ApiSignUpResponse,
 } from '../swagger/decorators/auth';
+import { AuthGuard } from '@nestjs/passport';
+import { DiscordUser } from './interfaces/discord-user';
+import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { ApiDiscordSignUpResponse } from '../swagger/decorators/auth/api-discord-signin.decorator';
+import { ApiDiscordCallbackResponse } from '../swagger/decorators/auth/api-discord-callback.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private configService: ConfigService,
+  ) {}
 
   @Post('signup')
   @ApiSignUpResponse()
@@ -39,5 +50,30 @@ export class AuthController {
   @ApiCheckStatusResponse()
   checkStatus(@GetUser() user: User) {
     return this.authService.checkStatus(user);
+  }
+
+  @Get('discord')
+  @UseGuards(AuthGuard('discord'))
+  @ApiDiscordSignUpResponse()
+  async discordSignIn() {}
+
+  @Get('discord/callback')
+  @UseGuards(AuthGuard('discord'))
+  @ApiDiscordCallbackResponse()
+  async discordCallback(
+    @GetUser() discordUser: DiscordUser,
+    @Res() res: Response,
+  ) {
+    const { accessToken } =
+      await this.authService.signInWithDiscord(discordUser);
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60,
+    });
+
+    res.redirect(this.configService.get('FRONTEND_URL'));
   }
 }
