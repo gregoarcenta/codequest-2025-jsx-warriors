@@ -1,0 +1,44 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "paths": {
+      "@env/*": ["src/environments/*"],
+      "@core/*":["src/app/core/*"],
+      "@shared/*":["src/app/shared/*"],
+      "@auth/*":["src/app/features/auth/*"],
+      "@dashboard/*":["src/app/features/dashboard/*"],
+      "@home/*":["src/app/features/dashboard/features/home/*"],
+      "@categories/*":["src/app/features/dashboard/features/categories/*"],
+      "@new/*":["src/app/features/dashboard/features/new/*"],
+      "@profile/*":["src/app/features/dashboard/features/profile/*"],
+      "@notifications/*":["src/app/features/dashboard/features/notifications/*"],
+      "@saved/*":["src/app/features/dashboard/features/saved/*"],
+      "@search/*":["src/app/features/dashboard/features/search/*"],
+    },
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2022",
+    "module": "es2020",
+    "lib": ["es2018", "dom"],
+    "useDefineForClassFields": false
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
+}
