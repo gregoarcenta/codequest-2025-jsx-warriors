@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -17,19 +17,52 @@ import {
   SheetContent,
   SheetTrigger,
   SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInput,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import {
   ArrowLeftCircleIcon,
+  Grid2x2,
   HomeIcon,
   Menu,
+  Rss,
   Search,
   User,
+  Users,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ToggleTheme } from "@/components/toggle-theme";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-export default function Header() {
+export default function MainHeader() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Abrir sidebar automáticamente en móvil
+  useEffect(() => {
+    if (isMobile) {
+      // Abrir automáticamente después de un pequeño delay
+      const timer = setTimeout(() => setIsSidebarOpen(true), 300);
+      return () => clearTimeout(timer);
+    } else {
+      setIsSidebarOpen(false);
+    }
+  }, [isMobile]);
 
   interface NavigationItem {
     title: string;
@@ -42,34 +75,50 @@ export default function Header() {
     {
       title: "Inicio",
       href: "/",
-      icon: <HomeIcon />,
+      icon: <HomeIcon className="h-4 w-4 text-white" />,
     },
     {
       title: "Artículos",
       href: "/articulos",
-      icon: <ArrowLeftCircleIcon />,
+      icon: <Rss className="h-4 w-4 text-white" />,
     },
     {
       title: "Categorías",
       href: "#",
-      icon: <HomeIcon />,
+      icon: <Grid2x2 className="h-4 w-4 text-white" />,
       children: [
         {
           title: "Frontend",
-          href: "/articulos/frontend",
+          href: "/articulos/categoria/frontend",
           description: "React, Vue, Angular y más tecnologías frontend",
         },
         {
           title: "Backend",
-          href: "/articulos/backend",
+          href: "/articulos/categoria/backend",
           description: "Node.js, Python, .NET y tecnologías de servidor",
         },
         {
           title: "Mobile",
-          href: "/articulos/mobile",
+          href: "/articulos/categoria/mobile",
           description: "React Native, Flutter y desarrollo móvil",
         },
+        {
+          title: "DevOps",
+          href: "/articulos/categoria/devops",
+          description: "CI/CD, Docker, Kubernetes y más",
+        },
+        {
+          title: "Inteligencia Artificial",
+          href: "/articulos/categoria/inteligencia-artificial",
+          description:
+            "Inteligencia Artificial y Machine Learning usando python",
+        },
       ],
+    },
+    {
+      title: "Comunidad",
+      href: "/comunidad",
+      icon: <Users className="h-4 w-4 text-white" />,
     },
   ];
 
@@ -85,6 +134,7 @@ export default function Header() {
                   src="/DEVTALLES-LOGO-CIRCULO.png"
                   alt="DevTalles Logo"
                   fill
+                  sizes="40px"
                   className="object-contain"
                 />
               </div>
@@ -93,6 +143,7 @@ export default function Header() {
                   src="/DEVTALLES-LOGO-TEXT.png"
                   alt="DevTalles Text"
                   fill
+                  sizes="96px"
                   className="object-contain"
                 />
               </div>
@@ -102,108 +153,53 @@ export default function Header() {
           {/* Desktop Navigation */}
           <NavigationMenu className="hidden lg:flex" viewport={false}>
             <NavigationMenuList>
-              {/* {navigationItems.map((item) => (
-                <NavigationMenuItem key={item.title}>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href={item.href}
-                      className="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600/30 hover:text-purple-300 focus:bg-purple-600/30 focus:text-purple-300 focus:outline-none"
-                    >
+              {navigationItems.map((item: NavigationItem, index: number) =>
+                (item.children || []).length <= 0 ? (
+                  <NavigationMenuItem key={item.title}>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href={item.href}
+                        className="flex flex-row h-10 flex-nowrap w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600/30 hover:text-purple-300 focus:bg-purple-600/30 focus:text-purple-300 focus:outline-none"
+                      >
+                        {item.icon}
+                        <span className="ml-2">{item.title}</span>
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                ) : (
+                  <NavigationMenuItem key={item.title}>
+                    <NavigationMenuTrigger className="text-white hover:text-purple-300 data-[state=open]:text-purple-300 bg-transparent hover:bg-purple-600/30 data-[state=open]:!bg-purple-600/30 data-[state=open]:border-transparent">
                       {item.icon}
                       <span className="ml-2">{item.title}</span>
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
- */}
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/"
-                    className="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600/30 hover:text-purple-300 focus:bg-purple-600/30 focus:text-purple-300 focus:outline-none"
-                  >
-                    Inicio
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/articulos"
-                    className="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600/30 hover:text-purple-300 focus:bg-purple-600/30 focus:text-purple-300 focus:outline-none"
-                  >
-                    Artículos
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-white hover:text-purple-300 data-[state=open]:text-purple-300 bg-transparent hover:bg-purple-600/30 data-[state=open]:!bg-purple-600/30 data-[state=open]:border-transparent">
-                  Categorias
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="w-[400px] p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur border border-purple-100 dark:border-purple-800 shadow-xl rounded-lg">
-                    <div className="grid gap-2">
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/articulos/frontend"
-                          className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:text-purple-800 dark:hover:text-purple-200 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 dark:focus:from-purple-900/50 dark:focus:to-pink-900/50 focus:text-purple-800 dark:focus:text-purple-200"
-                        >
-                          <div className="text-sm font-medium leading-none text-slate-900 dark:text-white">
-                            Frontend
-                          </div>
-                          <p className="line-clamp-2 text-sm leading-snug text-slate-600 dark:text-slate-300">
-                            React, Vue, Angular y más tecnologías frontend
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/articulos/backend"
-                          className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:text-purple-800 dark:hover:text-purple-200 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 dark:focus:from-purple-900/50 dark:focus:to-pink-900/50 focus:text-purple-800 dark:focus:text-purple-200"
-                        >
-                          <div className="text-sm font-medium leading-none text-slate-900 dark:text-white">
-                            Backend
-                          </div>
-                          <p className="line-clamp-2 text-sm leading-snug text-slate-600 dark:text-slate-300">
-                            Node.js, Python, .NET y tecnologías de servidor
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/articulos/mobile"
-                          className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:text-purple-800 dark:hover:text-purple-200 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 dark:focus:from-purple-900/50 dark:focus:to-pink-900/50 focus:text-purple-800 dark:focus:text-purple-200"
-                        >
-                          <div className="text-sm font-medium leading-none text-slate-900 dark:text-white">
-                            Mobile
-                          </div>
-                          <p className="line-clamp-2 text-sm leading-snug text-slate-600 dark:text-slate-300">
-                            React Native, Flutter y desarrollo móvil
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/comunidad"
-                    className="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600/30 hover:text-purple-300 focus:bg-purple-600/30 focus:text-purple-300 focus:outline-none"
-                  >
-                    Comunidad
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <div className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                        {item.children?.map((child) => (
+                          <NavigationMenuLink asChild key={child.title}>
+                            <Link
+                              href={child.href}
+                              className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:text-purple-800 dark:hover:text-purple-200 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 dark:focus:from-purple-900/50 dark:focus:to-pink-900/50 focus:text-purple-800 dark:focus:text-purple-200"
+                            >
+                              <div className="text-sm font-medium leading-none text-slate-900 dark:text-white">
+                                {child.title}
+                              </div>
+                              <p className="line-clamp-2 text-sm leading-snug text-slate-600 dark:text-slate-300">
+                                {child.description}
+                              </p>
+                            </Link>
+                          </NavigationMenuLink>
+                        ))}
+                      </div>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                )
+              )}
             </NavigationMenuList>
           </NavigationMenu>
 
           {/* Search and Auth */}
           <div className="flex items-center space-x-2">
-            {/* Search */}
+            {/* Search - Solo en desktop */}
             <div className="hidden md:flex">
               {isSearchOpen ? (
                 <div className="flex items-center space-x-2">
@@ -227,9 +223,9 @@ export default function Header() {
               )}
             </div>
 
-            {/* Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-2">
-              <Link href="/dashboard/login">
+            {/* Auth Buttons - Solo en desktop */}
+            <div className="hidden lg:flex items-center space-x-2">
+              <Link href="/login">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -239,135 +235,212 @@ export default function Header() {
                   Iniciar Sesión
                 </Button>
               </Link>
-              <Button
-                size="sm"
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
-              >
-                Únete
-              </Button>
+              <Link href="/registro">
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  Únete
+                </Button>
+              </Link>
               <ToggleTheme />
             </div>
 
-            {/* Mobile Menu */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="lg:hidden text-white hover:text-purple-300 hover:bg-purple-600/30"
+            {/* Mobile Menu Button - Visible en mobile/tablet */}
+            <div className="lg:hidden">
+              <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white hover:text-purple-300 hover:bg-purple-600/30 transition-all duration-200 border-2 border-white/40 bg-white/10 backdrop-blur-sm p-2 h-10 w-10"
+                  >
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Abrir menú</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="right"
+                  className="p-0 w-80 bg-white dark:bg-slate-900"
                 >
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="right"
-                className="w-80 bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900 dark:from-purple-950 dark:via-indigo-950 dark:to-slate-950 border-l border-purple-500 dark:border-purple-700 p-0"
-              >
-                <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
-                <div className="flex flex-col h-full">
-                  <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    {/* Logo in mobile menu */}
-                    <div className="flex items-center space-x-3 pb-4 border-b border-purple-300/30">
-                      <div className="relative h-8 w-8 flex-shrink-0">
+                  <SheetDescription className="sr-only" />
+                  <SheetTitle className="sr-only">
+                    Menú de navegación móvil
+                  </SheetTitle>
+
+                  {/* Header del Sidebar */}
+                  <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-slate-800 dark:to-purple-950/50 border-b border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center space-x-3">
+                      <div className="relative h-10 w-10 flex-shrink-0">
                         <Image
                           src="/DEVTALLES-LOGO-CIRCULO.png"
                           alt="DevTalles Logo"
-                          sizes="32px"
+                          sizes="40px"
                           fill
                           className="object-contain"
                         />
                       </div>
-                      <span className="font-semibold text-white">
-                        DevTalles
-                      </span>
-                    </div>
-
-                    {/* Navigation Links */}
-                    <div className="flex flex-col space-y-4">
-                      <div className="flex flex-col space-y-3">
-                        <h3 className="font-semibold text-white text-lg flex items-center">
-                          <span className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mr-3 flex-shrink-0"></span>
-                          Artículos
-                        </h3>
-                        <div className="pl-5 space-y-2">
-                          <Link
-                            href="/articles/frontend"
-                            className="block text-sm text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-gradient-to-r hover:from-purple-600/50 hover:to-pink-600/50 transition-all duration-200"
-                          >
-                            🎨 Frontend
-                          </Link>
-                          <Link
-                            href="/articles/backend"
-                            className="block text-sm text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-gradient-to-r hover:from-purple-600/50 hover:to-pink-600/50 transition-all duration-200"
-                          >
-                            ⚙️ Backend
-                          </Link>
-                          <Link
-                            href="/articles/mobile"
-                            className="block text-sm text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-gradient-to-r hover:from-purple-600/50 hover:to-pink-600/50 transition-all duration-200"
-                          >
-                            📱 Mobile
-                          </Link>
-                        </div>
-                      </div>
-
-                      <Link
-                        href="/tutoriales"
-                        className="font-medium text-white py-3 px-3 hover:text-purple-200 transition-colors rounded-lg hover:bg-gradient-to-r hover:from-purple-600/50 hover:to-pink-600/50 flex items-center"
-                      >
-                        <span className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mr-3 flex-shrink-0"></span>
-                        📚 Tutoriales
-                      </Link>
-                      <Link
-                        href="/recursos"
-                        className="font-medium text-white py-3 px-3 hover:text-purple-200 transition-colors rounded-lg hover:bg-gradient-to-r hover:from-purple-600/50 hover:to-pink-600/50 flex items-center"
-                      >
-                        <span className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mr-3 flex-shrink-0"></span>
-                        🛠️ Recursos
-                      </Link>
-                      <Link
-                        href="/comunidad"
-                        className="font-medium text-white py-3 px-3 hover:text-purple-200 transition-colors rounded-lg hover:bg-gradient-to-r hover:from-purple-600/50 hover:to-pink-600/50 flex items-center"
-                      >
-                        <span className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mr-3 flex-shrink-0"></span>
-                        👥 Comunidad
-                      </Link>
-                    </div>
-
-                    {/* Search */}
-                    <div className="pt-2">
-                      <Input
-                        type="search"
-                        placeholder="Buscar artículos..."
-                        className="w-full border-purple-400/30 focus:border-purple-400 focus:ring-purple-400/20 bg-slate-800/50 text-white placeholder:text-slate-300"
-                      />
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="pt-4 border-t border-purple-300/30 dark:border-purple-700/30">
-                      <div className="flex flex-col space-y-3">
-                        <Link href="/dashboard/login">
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start border-purple-400/30 dark:border-purple-600/30 text-white hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-pink-600/30 hover:text-purple-200 hover:border-purple-300 dark:hover:border-purple-500 transition-all duration-200"
-                          >
-                            <User className="h-4 w-4 mr-3" />
-                            Iniciar Sesión
-                          </Button>
-                        </Link>
-                        <Button className="justify-start bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                          ✨ Únete Ahora
-                        </Button>
-                        <div className="pt-2">
-                          <ToggleTheme />
-                        </div>
+                      <div>
+                        <h2 className="font-bold text-lg text-slate-900 dark:text-white">
+                          DevTalles
+                        </h2>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                          Blog de desarrollo
+                        </p>
                       </div>
                     </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+
+                  {/* Content del Sidebar */}
+                  <div className="flex-1 p-6 overflow-y-auto">
+                    {/* Navegación Principal */}
+                    <div className="mb-6">
+                      <h3 className="text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs font-semibold mb-3">
+                        Navegación
+                      </h3>
+                      <div className="space-y-2">
+                        <Link
+                          href="/"
+                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                          onClick={() => setIsSidebarOpen(false)}
+                        >
+                          <HomeIcon className="h-5 w-5" />
+                          <span>Inicio</span>
+                        </Link>
+                        <Link
+                          href="/articulos"
+                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                          onClick={() => setIsSidebarOpen(false)}
+                        >
+                          <Rss className="h-5 w-5" />
+                          <span>Artículos</span>
+                        </Link>
+                        <Link
+                          href="/comunidad"
+                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                          onClick={() => setIsSidebarOpen(false)}
+                        >
+                          <Users className="h-5 w-5" />
+                          <span>Comunidad</span>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Categorías */}
+                    <div className="mb-6">
+                      <h3 className="text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs font-semibold mb-3 flex items-center">
+                        <Grid2x2 className="h-4 w-4 mr-2" />
+                        Categorías
+                      </h3>
+                      <div className="space-y-3">
+                        {[
+                          {
+                            name: "Frontend",
+                            emoji: "🎨",
+                            color: "bg-blue-500",
+                            href: "/articulos/categoria/frontend",
+                          },
+                          {
+                            name: "Backend",
+                            emoji: "⚙️",
+                            color: "bg-green-500",
+                            href: "/articulos/categoria/backend",
+                          },
+                          {
+                            name: "Mobile",
+                            emoji: "📱",
+                            color: "bg-purple-500",
+                            href: "/articulos/categoria/mobile",
+                          },
+                          {
+                            name: "DevOps",
+                            emoji: "🚀",
+                            color: "bg-orange-500",
+                            href: "/articulos/categoria/devops",
+                          },
+                          {
+                            name: "AI",
+                            emoji: "🤖",
+                            color: "bg-pink-500",
+                            href: "/articulos/categoria/inteligencia-artificial",
+                          },
+                        ].map((category) => (
+                          <Link
+                            key={category.name}
+                            href={category.href}
+                            className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
+                            onClick={() => setIsSidebarOpen(false)}
+                          >
+                            <div
+                              className={`w-8 h-8 rounded-lg ${category.color} flex items-center justify-center text-white text-sm font-medium shadow-sm`}
+                            >
+                              {category.emoji}
+                            </div>
+                            <span>{category.name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Búsqueda */}
+                    <div className="mb-6">
+                      <h3 className="text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs font-semibold mb-3 flex items-center">
+                        <Search className="h-4 w-4 mr-2" />
+                        Búsqueda
+                      </h3>
+                      <Input
+                        placeholder="Buscar artículos..."
+                        className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Footer del Sidebar */}
+                  <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 mt-auto">
+                    <div className="space-y-4">
+                      {/* Toggle Theme */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          Tema
+                        </span>
+                        <ToggleTheme />
+                      </div>
+
+                      {/* Auth Buttons */}
+                      <div className="space-y-2">
+                        <Link
+                          href="/login"
+                          className="block"
+                          onClick={() => setIsSidebarOpen(false)}
+                        >
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400"
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            Iniciar Sesión
+                          </Button>
+                        </Link>
+                        <Link
+                          href="/registro"
+                          className="block"
+                          onClick={() => setIsSidebarOpen(false)}
+                        >
+                          <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
+                            ✨ Únete Gratis
+                          </Button>
+                        </Link>
+                      </div>
+
+                      {/* Footer info */}
+                      <div className="text-center text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-600">
+                        © 2025 DevTalles Blog
+                      </div>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </div>
