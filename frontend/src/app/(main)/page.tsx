@@ -9,7 +9,14 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Clock, User, ArrowRight, BookOpen } from "lucide-react";
+import {
+  CalendarDays,
+  Clock,
+  User,
+  ArrowRight,
+  BookOpen,
+  Users,
+} from "lucide-react";
 import HeroMascot from "@/components/hero-mascot";
 
 interface Article {
@@ -137,34 +144,34 @@ export default function MainHome() {
             <div className="space-y-8 text-center lg:text-left">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
                 <span className="bg-gradient-to-r from-white via-purple-100 to-blue-200 bg-clip-text text-transparent">
-                  ¡Impulsa tu carrera
+                  Domina el desarrollo
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-purple-300 via-pink-200 to-white bg-clip-text text-transparent">
-                  hasta las estrellas!
+                  con dev/talles blog
                 </span>
               </h1>
               <p className="text-xl md:text-2xl text-slate-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Aprende a tu ritmo y potencia tu carrera desde cualquier lugar
-                del universo, con nuestros artículos, tutoriales y recursos de
-                frontend y backend de la mano de expertos.
+                Descubre las mejores prácticas, tutoriales detallados y las
+                últimas tendencias en desarrollo frontend y backend. Contenido
+                creado por expertos para acelerar tu crecimiento profesional.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg px-8 py-4 shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
+                <Link
+                  href="/articulos"
+                  className="inline-flex items-center justify-center rounded-md bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg px-8 py-4 shadow-lg hover:shadow-purple-500/25 transition-all duration-300 font-medium"
                 >
                   <BookOpen className="mr-2 h-5 w-5" />
-                  Explorar Artículos
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/80 text-white bg-white/10 hover:bg-white hover:text-slate-900 dark:hover:text-white text-lg px-8 py-4 backdrop-blur-sm shadow-lg hover:shadow-white/25 transition-all duration-300"
+                  Leer Artículos
+                </Link>
+                <Link
+                  href="/comunidad"
+                  className="inline-flex items-center justify-center rounded-md border border-white/80 text-white bg-white/10 hover:bg-white/20 hover:border-white hover:text-white dark:hover:bg-white/15 dark:hover:text-white text-lg px-8 py-4 backdrop-blur-sm shadow-lg hover:shadow-white/25 transition-all duration-300 font-medium"
                 >
-                  Unirse a la Comunidad
+                  <Users className="mr-2 h-5 w-5" />
+                  Comunidad
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                </Link>
               </div>
             </div>
 
@@ -183,23 +190,23 @@ export default function MainHome() {
                 +872k
               </div>
               <div className="text-slate-300 mt-3 text-sm md:text-base">
-                Desarrolladores leyendo nuestro contenido
+                Lectores mensuales del blog
               </div>
             </div>
             <div className="text-center bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
               <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
-                +150
+                +250
               </div>
               <div className="text-slate-300 mt-3 text-sm md:text-base">
-                Artículos técnicos publicados
+                Artículos y tutoriales publicados
               </div>
             </div>
             <div className="text-center bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
               <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-300 to-blue-300 bg-clip-text text-transparent">
-                +40k
+                +50k
               </div>
               <div className="text-slate-300 mt-3 text-sm md:text-base">
-                Miembros en nuestra comunidad
+                Developers en nuestra comunidad
               </div>
             </div>
           </div>
