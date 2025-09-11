@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Clock, User, ArrowRight, BookOpen } from "lucide-react";
-import HeroMascot from "@/components/HeroMascot";
+import HeroMascot from "@/components/hero-mascot";
 
 interface Article {
   id: string;
@@ -160,7 +160,7 @@ export default function MainHome() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white/80 text-white bg-white/10 hover:bg-white hover:text-slate-900 text-lg px-8 py-4 backdrop-blur-sm shadow-lg hover:shadow-white/25 transition-all duration-300"
+                  className="border-white/80 text-white bg-white/10 hover:bg-white hover:text-slate-900 dark:hover:text-white text-lg px-8 py-4 backdrop-blur-sm shadow-lg hover:shadow-white/25 transition-all duration-300"
                 >
                   Unirse a la Comunidad
                   <ArrowRight className="ml-2 h-5 w-5" />

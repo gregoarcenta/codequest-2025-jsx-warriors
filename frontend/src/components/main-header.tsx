@@ -18,12 +18,60 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Menu, Search, User } from "lucide-react";
+import {
+  ArrowLeftCircleIcon,
+  HomeIcon,
+  Menu,
+  Search,
+  User,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ToggleTheme } from "@/components/toggle-theme";
 
 export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  interface NavigationItem {
+    title: string;
+    href: string;
+    icon: React.ReactNode;
+    children?: { title: string; href: string; description: string }[];
+  }
+
+  const navigationItems: NavigationItem[] = [
+    {
+      title: "Inicio",
+      href: "/",
+      icon: <HomeIcon />,
+    },
+    {
+      title: "Artículos",
+      href: "/articulos",
+      icon: <ArrowLeftCircleIcon />,
+    },
+    {
+      title: "Categorías",
+      href: "#",
+      icon: <HomeIcon />,
+      children: [
+        {
+          title: "Frontend",
+          href: "/articulos/frontend",
+          description: "React, Vue, Angular y más tecnologías frontend",
+        },
+        {
+          title: "Backend",
+          href: "/articulos/backend",
+          description: "Node.js, Python, .NET y tecnologías de servidor",
+        },
+        {
+          title: "Mobile",
+          href: "/articulos/mobile",
+          description: "React Native, Flutter y desarrollo móvil",
+        },
+      ],
+    },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-purple-600/30 bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 dark:from-purple-950 dark:via-indigo-950 dark:to-slate-950 backdrop-blur supports-[backdrop-filter]:bg-gradient-to-r supports-[backdrop-filter]:from-purple-900/95 supports-[backdrop-filter]:via-indigo-900/95 supports-[backdrop-filter]:to-slate-900/95 dark:supports-[backdrop-filter]:from-purple-950/95 dark:supports-[backdrop-filter]:via-indigo-950/95 dark:supports-[backdrop-filter]:to-slate-950/95 shadow-lg">
@@ -52,73 +100,92 @@ export default function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <NavigationMenu className="hidden lg:flex">
+          <NavigationMenu className="hidden lg:flex" viewport={false}>
             <NavigationMenuList>
+              {/* {navigationItems.map((item) => (
+                <NavigationMenuItem key={item.title}>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href={item.href}
+                      className="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600/30 hover:text-purple-300 focus:bg-purple-600/30 focus:text-purple-300 focus:outline-none"
+                    >
+                      {item.icon}
+                      <span className="ml-2">{item.title}</span>
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+ */}
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-white hover:text-purple-300 data-[state=open]:text-purple-300 bg-transparent hover:bg-purple-600/30 data-[state=open]:bg-purple-600/30">
-                  Artículos
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/"
+                    className="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600/30 hover:text-purple-300 focus:bg-purple-600/30 focus:text-purple-300 focus:outline-none"
+                  >
+                    Inicio
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/articulos"
+                    className="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600/30 hover:text-purple-300 focus:bg-purple-600/30 focus:text-purple-300 focus:outline-none"
+                  >
+                    Artículos
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-white hover:text-purple-300 data-[state=open]:text-purple-300 bg-transparent hover:bg-purple-600/30 data-[state=open]:!bg-purple-600/30 data-[state=open]:border-transparent">
+                  Categorias
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <div className="w-[400px] p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur border border-purple-100 dark:border-purple-800 shadow-xl rounded-lg">
                     <div className="grid gap-2">
-                      <Link
-                        href="/articles/frontend"
-                        className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:text-purple-800 dark:hover:text-purple-200 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 dark:focus:from-purple-900/50 dark:focus:to-pink-900/50 focus:text-purple-800 dark:focus:text-purple-200"
-                      >
-                        <div className="text-sm font-medium leading-none text-slate-900 dark:text-white">
-                          Frontend
-                        </div>
-                        <p className="line-clamp-2 text-sm leading-snug text-slate-600 dark:text-slate-300">
-                          React, Vue, Angular y más tecnologías frontend
-                        </p>
-                      </Link>
-                      <Link
-                        href="/articles/backend"
-                        className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:text-purple-800 dark:hover:text-purple-200 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 dark:focus:from-purple-900/50 dark:focus:to-pink-900/50 focus:text-purple-800 dark:focus:text-purple-200"
-                      >
-                        <div className="text-sm font-medium leading-none text-slate-900 dark:text-white">
-                          Backend
-                        </div>
-                        <p className="line-clamp-2 text-sm leading-snug text-slate-600 dark:text-slate-300">
-                          Node.js, Python, .NET y tecnologías de servidor
-                        </p>
-                      </Link>
-                      <Link
-                        href="/articles/mobile"
-                        className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:text-purple-800 dark:hover:text-purple-200 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 dark:focus:from-purple-900/50 dark:focus:to-pink-900/50 focus:text-purple-800 dark:focus:text-purple-200"
-                      >
-                        <div className="text-sm font-medium leading-none text-slate-900 dark:text-white">
-                          Mobile
-                        </div>
-                        <p className="line-clamp-2 text-sm leading-snug text-slate-600 dark:text-slate-300">
-                          React Native, Flutter y desarrollo móvil
-                        </p>
-                      </Link>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href="/articulos/frontend"
+                          className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:text-purple-800 dark:hover:text-purple-200 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 dark:focus:from-purple-900/50 dark:focus:to-pink-900/50 focus:text-purple-800 dark:focus:text-purple-200"
+                        >
+                          <div className="text-sm font-medium leading-none text-slate-900 dark:text-white">
+                            Frontend
+                          </div>
+                          <p className="line-clamp-2 text-sm leading-snug text-slate-600 dark:text-slate-300">
+                            React, Vue, Angular y más tecnologías frontend
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href="/articulos/backend"
+                          className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:text-purple-800 dark:hover:text-purple-200 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 dark:focus:from-purple-900/50 dark:focus:to-pink-900/50 focus:text-purple-800 dark:focus:text-purple-200"
+                        >
+                          <div className="text-sm font-medium leading-none text-slate-900 dark:text-white">
+                            Backend
+                          </div>
+                          <p className="line-clamp-2 text-sm leading-snug text-slate-600 dark:text-slate-300">
+                            Node.js, Python, .NET y tecnologías de servidor
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href="/articulos/mobile"
+                          className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:text-purple-800 dark:hover:text-purple-200 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 dark:focus:from-purple-900/50 dark:focus:to-pink-900/50 focus:text-purple-800 dark:focus:text-purple-200"
+                        >
+                          <div className="text-sm font-medium leading-none text-slate-900 dark:text-white">
+                            Mobile
+                          </div>
+                          <p className="line-clamp-2 text-sm leading-snug text-slate-600 dark:text-slate-300">
+                            React Native, Flutter y desarrollo móvil
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
                     </div>
                   </div>
                 </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/tutoriales"
-                    className="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600/30 hover:text-purple-300 focus:bg-purple-600/30 focus:text-purple-300 focus:outline-none"
-                  >
-                    Tutoriales
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/recursos"
-                    className="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-600/30 hover:text-purple-300 focus:bg-purple-600/30 focus:text-purple-300 focus:outline-none"
-                  >
-                    Recursos
-                  </Link>
-                </NavigationMenuLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
