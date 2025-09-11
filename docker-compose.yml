@@ -25,4 +25,3 @@ services:
     depends_on:
       - postgres
   #docker compose --profile backend up -d
-  #docker compose --profile backend up -d
