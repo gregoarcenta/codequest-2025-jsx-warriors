@@ -13,18 +13,18 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { User } from './entities/user.entity';
 import { Auth, GetUser } from './decorators';
-import {
-  ApiCheckStatusResponse,
-  ApiSignInResponse,
-  ApiSignUpResponse,
-} from '../swagger/decorators/auth';
 import { AuthGuard } from '@nestjs/passport';
 import { DiscordUser } from './interfaces/discord-user';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { ApiDiscordSignUpResponse } from '../swagger/decorators/auth/api-discord-signin.decorator';
-import { ApiDiscordCallbackResponse } from '../swagger/decorators/auth/api-discord-callback.decorator';
 import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiCheckStatusResponse,
+  ApiSignInResponse,
+  ApiSignUpResponse,
+  ApiDiscordSignUpResponse,
+  ApiDiscordCallbackResponse,
+} from '../swagger/decorators/auth';
 
 @ApiTags('Auth')
 @Controller('auth')
