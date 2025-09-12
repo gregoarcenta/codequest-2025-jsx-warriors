@@ -1,14 +1,19 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { TypeOrmConfigService, validationSchema } from './config';
+import { validationSchema } from './config';
 import { UploadModule } from './upload/upload.module';
+import typeorm from './config/typeorm.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ validationSchema, isGlobal: true }),
-    TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
+    ConfigModule.forRoot({ validationSchema, isGlobal: true, load: [typeorm] }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) =>
+        configService.get('typeorm'),
+    }),
     AuthModule,
     UploadModule,
   ],
