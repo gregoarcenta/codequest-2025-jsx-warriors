@@ -19,21 +19,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarInput,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+
 import {
   ArrowLeftCircleIcon,
   Grid2x2,
@@ -57,8 +43,8 @@ export default function MainHeader() {
   useEffect(() => {
     if (isMobile) {
       // Abrir automáticamente después de un pequeño delay
-      const timer = setTimeout(() => setIsSidebarOpen(true), 300);
-      return () => clearTimeout(timer);
+      //const timer = setTimeout(() => setIsSidebarOpen(true), 300);
+      // return () => clearTimeout(timer);
     } else {
       setIsSidebarOpen(false);
     }
@@ -383,7 +369,7 @@ export default function MainHeader() {
                     </div>
 
                     {/* Búsqueda */}
-                    <div className="mb-6">
+                    {/* <div className="mb-6">
                       <h3 className="text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs font-semibold mb-3 flex items-center">
                         <Search className="h-4 w-4 mr-2" />
                         Búsqueda
@@ -391,8 +377,9 @@ export default function MainHeader() {
                       <Input
                         placeholder="Buscar artículos..."
                         className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                        autoFocus={false}
                       />
-                    </div>
+                    </div> */}
                   </div>
 
                   {/* Footer del Sidebar */}
@@ -427,7 +414,7 @@ export default function MainHeader() {
                           onClick={() => setIsSidebarOpen(false)}
                         >
                           <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
-                            ✨ Únete Gratis
+                            Únete
                           </Button>
                         </Link>
                       </div>

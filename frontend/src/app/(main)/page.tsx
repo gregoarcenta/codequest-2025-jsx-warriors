@@ -11,11 +11,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   CalendarDays,
-  Clock,
   User,
   ArrowRight,
   BookOpen,
   Users,
+  Heart,
+  Eye,
+  MessageSquare,
 } from "lucide-react";
 import HeroMascot from "@/components/hero-mascot";
 import { Input } from "@/components/ui/input";
@@ -30,6 +32,9 @@ interface Article {
   readTime: string;
   image: string;
   featured?: boolean;
+  likes: number;
+  views: number;
+  comments: number;
 }
 
 const featuredArticles: Article[] = [
@@ -45,6 +50,9 @@ const featuredArticles: Article[] = [
     readTime: "12 min",
     image: "https://picsum.photos/400/240?random=1",
     featured: true,
+    likes: 245,
+    views: 3420,
+    comments: 38,
   },
   {
     id: "2",
@@ -57,6 +65,9 @@ const featuredArticles: Article[] = [
     readTime: "8 min",
     image: "https://picsum.photos/400/240?random=2",
     featured: true,
+    likes: 182,
+    views: 2890,
+    comments: 24,
   },
   {
     id: "3",
@@ -69,6 +80,9 @@ const featuredArticles: Article[] = [
     readTime: "15 min",
     image: "https://picsum.photos/400/240?random=3",
     featured: true,
+    likes: 198,
+    views: 2156,
+    comments: 31,
   },
   {
     id: "4",
@@ -81,6 +95,9 @@ const featuredArticles: Article[] = [
     readTime: "15 min",
     image: "https://picsum.photos/400/240?random=3",
     featured: true,
+    likes: 156,
+    views: 1897,
+    comments: 19,
   },
   {
     id: "5",
@@ -93,6 +110,9 @@ const featuredArticles: Article[] = [
     readTime: "7 min",
     image: "https://picsum.photos/400/240?random=5",
     featured: true,
+    likes: 134,
+    views: 1654,
+    comments: 22,
   },
 ];
 
@@ -106,6 +126,9 @@ const recentArticles: Article[] = [
     publishDate: "2025-01-05",
     readTime: "10 min",
     image: "https://picsum.photos/300/180?random=4",
+    likes: 89,
+    views: 1234,
+    comments: 15,
   },
   {
     id: "5",
@@ -117,6 +140,9 @@ const recentArticles: Article[] = [
     publishDate: "2025-01-04",
     readTime: "7 min",
     image: "https://picsum.photos/300/180?random=5",
+    likes: 76,
+    views: 987,
+    comments: 12,
   },
   {
     id: "6",
@@ -128,6 +154,9 @@ const recentArticles: Article[] = [
     publishDate: "2025-01-03",
     readTime: "9 min",
     image: "https://picsum.photos/300/180?random=6",
+    likes: 112,
+    views: 1567,
+    comments: 18,
   },
   {
     id: "7",
@@ -138,6 +167,9 @@ const recentArticles: Article[] = [
     publishDate: "2025-01-02",
     readTime: "6 min",
     image: "https://picsum.photos/300/180?random=7",
+    likes: 94,
+    views: 876,
+    comments: 9,
   },
 ];
 
@@ -148,6 +180,20 @@ const categories = [
   { name: "DevOps", count: 8, color: "bg-orange-500" },
   { name: "AI", count: 6, color: "bg-pink-500" },
 ];
+
+// Function to calculate time ago
+const getTimeAgo = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 1) return "hace 1 día";
+  if (diffDays < 7) return `hace ${diffDays} días`;
+  if (diffDays < 30) return `hace ${Math.floor(diffDays / 7)} semanas`;
+  if (diffDays < 365) return `hace ${Math.floor(diffDays / 30)} meses`;
+  return `hace ${Math.floor(diffDays / 365)} años`;
+};
 
 export default function MainHomePage() {
   return (
@@ -267,7 +313,7 @@ export default function MainHomePage() {
                     height={index === 0 ? 400 : 240}
                     className="w-full h-48 lg:h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <Badge className="absolute top-4 left-4 bg-gradient-to-r from-blue-600 to-purple-600">
+                  <Badge className="absolute top-4 left-4 bg-purple-600 hover:bg-purple-700 text-white">
                     {article.category}
                   </Badge>
                   {article.featured && (
@@ -276,7 +322,7 @@ export default function MainHomePage() {
                     </Badge>
                   )}
                 </div>
-                <CardHeader className="pb-4">
+                <CardHeader className="pb-3">
                   <CardTitle className="text-xl group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2 dark:text-white">
                     <Link href={`/articulos/${article.id}`}>
                       {article.title}
@@ -286,31 +332,56 @@ export default function MainHomePage() {
                     {article.description}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-1">
-                        <User className="h-4 w-4" />
-                        <span>{article.author}</span>
+                <CardContent className="pt-0">
+                  {/* Author and Date */}
+                  <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400 mb-3">
+                    <div className="flex items-center gap-1">
+                      <User className="h-4 w-4 text-purple-500" />
+                      <span className="font-medium">{article.author}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CalendarDays className="h-4 w-4 text-slate-400" />
+                      <span>
+                        {new Date(article.publishDate).toLocaleDateString(
+                          "es-ES",
+                          {
+                            day: "numeric",
+                            month: "short",
+                          }
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Time ago */}
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    {getTimeAgo(article.publishDate)}
+                  </div>
+
+                  {/* Stats */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                        <Heart className="h-4 w-4" />
+                        <span className="font-medium">{article.likes}</span>
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <CalendarDays className="h-4 w-4" />
-                        <span>
-                          {new Date(article.publishDate).toLocaleDateString(
-                            "es-ES",
-                            {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            }
-                          )}
-                        </span>
+                      <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                        <Eye className="h-4 w-4" />
+                        <span className="font-medium">{article.views}</span>
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <Clock className="h-4 w-4" />
-                        <span>{article.readTime}</span>
+                      <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                        <MessageSquare className="h-4 w-4" />
+                        <span className="font-medium">{article.comments}</span>
                       </div>
                     </div>
+                    <Link href={`/articulos/${article.id}`}>
+                      <Button
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        Leer más
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
@@ -342,7 +413,7 @@ export default function MainHomePage() {
                 {recentArticles.map((article) => (
                   <Card
                     key={article.id}
-                    className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 dark:border-slate-700 shadow-md hover:shadow-purple-100 dark:hover:shadow-purple-900/20 dark:bg-slate-800 rounded-xl overflow-hidden"
+                    className="group hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-700 shadow-md hover:shadow-purple-100 dark:hover:shadow-purple-900/20 dark:bg-slate-800 rounded-xl overflow-hidden"
                   >
                     <div className="flex flex-col md:flex-row">
                       <div className="md:w-1/3 relative overflow-hidden">
@@ -351,49 +422,62 @@ export default function MainHomePage() {
                           alt={article.title}
                           width={300}
                           height={180}
-                          className="w-full h-48 md:h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-48 md:h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                        <Badge className="absolute top-4 left-4 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg">
+                        <Badge className="absolute top-4 left-4 bg-purple-600 hover:bg-purple-700 text-white">
                           {article.category}
                         </Badge>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       </div>
                       <div className="md:w-2/3 p-6">
                         <CardTitle className="text-xl group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors mb-3 line-clamp-2 dark:text-white font-semibold leading-tight">
-                          <Link
-                            href={`/articulos/${article.id}`}
-                            className="hover:underline"
-                          >
+                          <Link href={`/articulos/${article.id}`}>
                             {article.title}
                           </Link>
                         </CardTitle>
                         <CardDescription className="text-slate-600 dark:text-slate-300 mb-4 line-clamp-2 text-base leading-relaxed">
                           {article.description}
                         </CardDescription>
-                        <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-slate-400">
-                          <div className="flex items-center space-x-1 bg-slate-50 dark:bg-slate-700 px-2 py-1 rounded-md">
-                            <User className="h-4 w-4 text-purple-500" />
-                            <span className="font-medium">
-                              {article.author}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <CalendarDays className="h-4 w-4 text-slate-400" />
-                            <span>
-                              {new Date(article.publishDate).toLocaleDateString(
-                                "es-ES",
-                                {
-                                  year: "numeric",
-                                  month: "short",
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-slate-400">
+                            <div className="flex items-center space-x-1 bg-slate-50 dark:bg-slate-700 px-2 py-1 rounded-md">
+                              <User className="h-4 w-4 text-purple-500" />
+                              <span className="font-medium">
+                                {article.author}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <CalendarDays className="h-4 w-4 text-slate-400" />
+                              <span>
+                                {new Date(
+                                  article.publishDate
+                                ).toLocaleDateString("es-ES", {
                                   day: "numeric",
-                                }
-                              )}
-                            </span>
+                                  month: "short",
+                                })}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-1 bg-purple-50 dark:bg-purple-900/20 px-2 py-1 rounded-md">
-                            <Clock className="h-4 w-4 text-purple-500" />
-                            <span className="text-purple-600 dark:text-purple-400 font-medium">
-                              {article.readTime}
+                        </div>
+
+                        {/* Time ago */}
+                        <div className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                          {getTimeAgo(article.publishDate)}
+                        </div>
+
+                        {/* Stats */}
+                        <div className="flex items-center space-x-4 text-sm">
+                          <div className="flex items-center space-x-1 text-slate-500 dark:text-slate-400">
+                            <Heart className="h-4 w-4" />
+                            <span className="font-medium">{article.likes}</span>
+                          </div>
+                          <div className="flex items-center space-x-1 text-slate-500 dark:text-slate-400">
+                            <Eye className="h-4 w-4" />
+                            <span className="font-medium">{article.views}</span>
+                          </div>
+                          <div className="flex items-center space-x-1 text-slate-500 dark:text-slate-400">
+                            <MessageSquare className="h-4 w-4" />
+                            <span className="font-medium">
+                              {article.comments}
                             </span>
                           </div>
                         </div>
