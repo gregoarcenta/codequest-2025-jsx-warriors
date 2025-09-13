@@ -1,8 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { useState, useEffect, Fragment } from "react";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -15,13 +12,18 @@ import {
 import {
   Sheet,
   SheetContent,
-  SheetTrigger,
-  SheetTitle,
   SheetDescription,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
+import { ToggleTheme } from "@/components/toggle-theme";
+import { Input } from "@/components/ui/input";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
-  ArrowLeftCircleIcon,
   Grid2x2,
   HomeIcon,
   Menu,
@@ -30,9 +32,6 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { ToggleTheme } from "@/components/toggle-theme";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function MainHeader() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);

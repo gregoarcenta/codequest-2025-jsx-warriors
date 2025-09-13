@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,8 +9,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -21,30 +27,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Separator } from "@/components/ui/separator";
-import {
-  Search,
-  Filter,
-  Calendar,
-  User,
-  Eye,
-  Heart,
-  Share2,
   BookOpen,
-  TrendingUp,
-  Grid3x3,
   Brush,
+  Calendar,
+  Eye,
+  Filter,
+  Heart,
   MessageSquare,
+  Search,
+  User,
 } from "lucide-react";
-import { Label } from "@/components/ui/label";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
 // Mock data para artículos
 const mockArticles = [

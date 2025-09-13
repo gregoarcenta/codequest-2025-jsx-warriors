@@ -1,14 +1,11 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  FileText,
-  Shield,
-  Users,
-  MessageSquare,
-  Mail,
-  ExternalLink,
-  Calendar,
   AlertCircle,
+  Calendar,
+  FileText,
+  Mail,
+  MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 

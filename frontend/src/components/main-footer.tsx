@@ -1,18 +1,14 @@
-import Link from "next/link";
-import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import {
-  Youtube,
-  Twitter,
-  Linkedin,
   Facebook,
-  MessageCircle,
   Globe,
-  HomeIcon,
-  Rss,
-  Grid2x2,
-  Users,
+  Linkedin,
+  MessageCircle,
+  Twitter,
+  Youtube,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function MainFooter() {
   interface Category {
