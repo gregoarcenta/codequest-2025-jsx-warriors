@@ -65,9 +65,9 @@ export class Post {
   @Column({ type: 'enum', enum: PostStatus, default: PostStatus.DRAFT })
   status: PostStatus;
 
-  @ManyToOne(() => User, { eager: true })
-  @JoinColumn({ name: 'autor_id' })
-  autor: User;
+  @ManyToOne(() => User, { eager: true, nullable: false })
+  @JoinColumn({ name: 'author_id' })
+  author: User;
 
   @ManyToOne(() => Category, { eager: true })
   @JoinColumn({ name: 'category_id' })

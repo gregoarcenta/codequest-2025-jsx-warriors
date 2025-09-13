@@ -10,21 +10,22 @@ export class HandlerException {
   private logger = new Logger(HandlerException.name);
 
   handlerDBException(error: any): never {
-    if (error.code === '23505') {
-      this.logger.error(error.detail);
-      throw new BadRequestException(error.detail);
-    }
-
     if (error.code === '23502') {
-      const message = `The column (${error.column}) can't be null`;
+      const message = `The column (${error.column}) cannot be null`;
       this.logger.error(message);
       throw new BadRequestException(message);
     }
 
     if (error.code === '23503') {
-      const message = `Violates foreign key constraint in table (${error.table})`;
+      const message = `Invalid reference: related record not found.`;
       this.logger.error(message);
-      throw new InternalServerErrorException(message);
+      throw new BadRequestException(message);
+    }
+
+    if (error.code === '23505') {
+      const message = `The value you tried to insert already exists.`;
+      this.logger.error(message);
+      throw new BadRequestException(error.detail);
     }
 
     this.logger.error(error.message);

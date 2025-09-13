@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsUUID, Length, IsUrl } from 'class-validator';
 import { Transform } from 'class-transformer';
 
@@ -15,7 +15,7 @@ export class CreatePostDto {
   @Transform(({ value }) => value.trim())
   title: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Post content',
     example: 'This is a post content',
   })
@@ -23,7 +23,7 @@ export class CreatePostDto {
   @IsOptional()
   content?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Post cover image URL',
     example: 'https://example.com/cover.jpg',
   })
@@ -32,7 +32,7 @@ export class CreatePostDto {
   @IsOptional()
   coverImageUrl?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Category ID',
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
