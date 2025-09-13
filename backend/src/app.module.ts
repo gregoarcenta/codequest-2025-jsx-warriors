@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { validationSchema } from './config';
 import { UploadModule } from './upload/upload.module';
 import { CategoriesModule } from './categories/categories.module';
+import { PostsModule } from './posts/posts.module';
 import typeorm from './config/typeorm.config';
 
 @Module({
@@ -16,8 +17,9 @@ import typeorm from './config/typeorm.config';
         configService.get('typeorm'),
     }),
     AuthModule,
-    UploadModule,
     CategoriesModule,
+    PostsModule,
+    UploadModule,
   ],
 })
 export class AppModule {}

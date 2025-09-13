@@ -54,7 +54,7 @@ export class User {
     description: 'Avatar URL',
     example: 'https://res.cloudinary.com/.../avatar.png',
   })
-  @Column({ type: 'varchar', length: 254, nullable: true, name: 'avatar_url' })
+  @Column({ type: 'text', nullable: true, name: 'avatar_url' })
   avatarUrl: string;
 
   @ApiProperty({})
