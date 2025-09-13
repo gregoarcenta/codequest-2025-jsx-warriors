@@ -21,7 +21,7 @@ export class PostsService implements OnModuleInit {
     console.log('inicio del modulo de posts');
   }
 
-  async create(createPostDto: CreatePostDto, user: User) {
+  async create(createPostDto: CreatePostDto, user: User): Promise<Post> {
     try {
       const post = this.postRepository.create({
         ...createPostDto,
@@ -31,18 +31,18 @@ export class PostsService implements OnModuleInit {
         },
       });
 
-      const savedPost = await this.postRepository.save(post);
+      await this.postRepository.save(post);
 
       await this.userRepository.increment({ id: user.id }, 'postsCount', 1);
 
-      return savedPost;
+      return this.findOne(post.id);
     } catch (err) {
       return this.handlerException.handlerDBException(err);
     }
   }
 
-  async findAll() {
-    return `This action returns all posts`;
+  async findAll(): Promise<Post[]> {
+    return this.postRepository.find();
   }
 
   async findOne(
@@ -76,15 +76,32 @@ export class PostsService implements OnModuleInit {
     return post;
   }
 
-  async update(id: string, updatePostDto: UpdatePostDto) {
-    const msg = `This action updates a #${id} post`;
-    return {
-      message: msg,
-      updatePostDto,
-    };
+  async update(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
+    let post: Post = null;
+    try {
+      post = await this.postRepository.preload({
+        id,
+        category: {
+          id: updatePostDto.categoryId,
+        },
+        ...updatePostDto,
+      });
+    } catch (err) {
+      this.handlerException.handlerDBException(err);
+    }
+
+    if (!post) throw new NotFoundException(`Post "${id}" not found`);
+
+    try {
+      await this.postRepository.save(post);
+    } catch (err) {
+      this.handlerException.handlerDBException(err);
+    }
+
+    return this.findOne(id);
   }
 
-  async updatePostStatus(id: string, status: PostStatus) {
+  async updatePostStatus(id: string, status: PostStatus): Promise<Post> {
     const post = await this.findOne(id);
 
     post.status = status;
