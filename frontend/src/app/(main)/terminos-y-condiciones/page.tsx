@@ -194,9 +194,10 @@ export default function TerminosCondicionesPage() {
                     </h3>
                     <div className="text-slate-600 dark:text-slate-300 space-y-3">
                       <p>
-                        El contenido del blog se proporciona "tal como está" con
-                        fines educativos e informativos. Aunque nos esforzamos
-                        por mantener la información actualizada y precisa:
+                        El contenido del blog se proporciona &quot;tal como
+                        está&quot; con fines educativos e informativos. Aunque
+                        nos esforzamos por mantener la información actualizada y
+                        precisa:
                       </p>
                       <ul className="list-disc pl-6 space-y-1">
                         <li>

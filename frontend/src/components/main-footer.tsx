@@ -17,34 +17,6 @@ export default function MainFooter() {
     description: string;
   }
 
-  const categories: Category[] = [
-    {
-      title: "Frontend",
-      href: "/articulos/categoria/frontend",
-      description: "React, Vue, Angular y más tecnologías frontend",
-    },
-    {
-      title: "Backend",
-      href: "/articulos/categoria/backend",
-      description: "Node.js, Python, .NET y tecnologías de servidor",
-    },
-    {
-      title: "Mobile",
-      href: "/articulos/categoria/mobile",
-      description: "React Native, Flutter y desarrollo móvil",
-    },
-    {
-      title: "DevOps",
-      href: "/articulos/categoria/devops",
-      description: "CI/CD, Docker, Kubernetes y más",
-    },
-    {
-      title: "Inteligencia Artificial",
-      href: "/articulos/categoria/inteligencia-artificial",
-      description: "Inteligencia Artificial y Machine Learning usando python",
-    },
-  ];
-
   return (
     <footer className="bg-slate-900 text-white">
       {/* Main Footer */}

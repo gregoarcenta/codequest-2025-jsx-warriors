@@ -141,7 +141,7 @@ export default function MainHeader() {
           {/* Desktop Navigation */}
           <NavigationMenu className="hidden lg:flex" viewport={false}>
             <NavigationMenuList>
-              {navigationItems.map((item: NavigationItem, index: number) =>
+              {navigationItems.map((item: NavigationItem) =>
                 (item.children || []).length <= 0 ? (
                   <NavigationMenuItem key={item.title}>
                     <NavigationMenuLink asChild>
