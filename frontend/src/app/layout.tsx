@@ -19,7 +19,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DevTalles Blog - Aprende Desarrollo Web Moderno",
+  title: {
+    default: "Inicio | DevTalles - Blog",
+    template: "%s | DevTalles - Blog",
+  },
   description:
     "Descubre artículos sobre desarrollo web, tecnologías modernas y las mejores prácticas para crear aplicaciones increíbles.",
   icons: {

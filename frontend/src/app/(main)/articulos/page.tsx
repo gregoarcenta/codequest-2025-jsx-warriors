@@ -499,7 +499,12 @@ export default function ArticlesPage() {
 
                     <CardHeader className="pb-3">
                       <CardTitle className="text-xl group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2 dark:text-white">
-                        <Link href={`/articulos/${article.id}`}>
+                        <Link
+                          href={`/articulos/${String(article.title)
+                            .toLowerCase()
+                            .replace(/\s+/g, "-")
+                            .replace(/[^a-z0-9\-]/g, "")}`}
+                        >
                           {article.title}
                         </Link>
                       </CardTitle>

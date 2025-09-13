@@ -434,7 +434,10 @@ export default function ArticlesSlugPage() {
                         {mockSimilarArticles.map((article) => (
                           <Link
                             key={article.id}
-                            href={`/articulos/${article.id}`}
+                            href={`/articulos/${String(article.title)
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")
+                              .replace(/[^a-z0-9\-]/g, "")}`}
                             className="block group"
                           >
                             <div className="flex gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
@@ -624,10 +627,6 @@ export default function ArticlesSlugPage() {
                                             <button className="flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
                                               <ThumbsDown className="h-3 w-3" />
                                               <span>{reply.dislikes}</span>
-                                            </button>
-                                            <button className="flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                                              <Reply className="h-3 w-3" />
-                                              <span>Responder</span>
                                             </button>
                                           </div>
                                         </div>

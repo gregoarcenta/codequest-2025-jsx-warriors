@@ -1,5 +1,3 @@
-"use client";
-
 import {
   BadgeCheck,
   Bell,
@@ -7,6 +5,7 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  UserCog,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -76,31 +75,31 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+            {/* <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator /> */}
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <BadgeCheck />
-                Account
+                <UserCog />
+                Mi perfil
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <CreditCard />
                 Billing
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
                 Notifications
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <LogOut />
-              Log out
+              Cerrar sesión
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

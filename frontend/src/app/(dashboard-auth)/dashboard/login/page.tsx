@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,6 +20,8 @@ export default function DashboardLoginPage() {
     e.preventDefault();
     // Handle login logic here
     console.log("Login attempt:", { email, password, rememberMe });
+    //redirigir al dashboard/login
+    router.push("/dashboard");
   };
 
   return (

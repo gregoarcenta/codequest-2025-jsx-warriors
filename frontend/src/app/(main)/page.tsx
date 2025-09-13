@@ -21,6 +21,11 @@ import {
 } from "lucide-react";
 import HeroMascot from "@/components/hero-mascot";
 import { Input } from "@/components/ui/input";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Inicio",
+};
 
 interface Article {
   id: string;
@@ -324,7 +329,12 @@ export default function MainHomePage() {
                 </div>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-xl group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2 dark:text-white">
-                    <Link href={`/articulos/${article.id}`}>
+                    <Link
+                      href={`/articulos/${String(article.title)
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")
+                        .replace(/[^a-z0-9\-]/g, "")}`}
+                    >
                       {article.title}
                     </Link>
                   </CardTitle>
@@ -430,7 +440,12 @@ export default function MainHomePage() {
                       </div>
                       <div className="md:w-2/3 p-6">
                         <CardTitle className="text-xl group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors mb-3 line-clamp-2 dark:text-white font-semibold leading-tight">
-                          <Link href={`/articulos/${article.id}`}>
+                          <Link
+                            href={`/articulos/${String(article.title)
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")
+                              .replace(/[^a-z0-9\-]/g, "")}`}
+                          >
                             {article.title}
                           </Link>
                         </CardTitle>
@@ -510,7 +525,15 @@ export default function MainHomePage() {
                     {categories.map((category, index) => (
                       <Link
                         key={category.name}
-                        href={`/articulos/${category.name.toLowerCase()}`}
+                        href={{
+                          pathname: "/articulos",
+                          query: {
+                            categoria: String(category.name)
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")
+                              .replace(/[^a-z0-9\-]/g, ""),
+                          },
+                        }}
                         className="group relative p-4 rounded-xl border border-slate-200 dark:border-slate-600 hover:border-purple-300 dark:hover:border-purple-500 bg-white dark:bg-slate-700/50 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                         style={{ animationDelay: `${index * 100}ms` }}
                       >

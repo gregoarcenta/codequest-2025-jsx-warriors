@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -54,7 +54,7 @@ export default function MainHeader() {
     title: string;
     href: string;
     icon: React.ReactNode;
-    children?: { title: string; href: string; description: string }[];
+    children?: { title: string; href: string | object; description: string }[];
   }
 
   const navigationItems: NavigationItem[] = [
@@ -75,27 +75,30 @@ export default function MainHeader() {
       children: [
         {
           title: "Frontend",
-          href: "/articulos/categoria/frontend",
+          href: { pathname: "/articulos", query: { categoria: "frontend" } },
           description: "React, Vue, Angular y más tecnologías frontend",
         },
         {
           title: "Backend",
-          href: "/articulos/categoria/backend",
+          href: { pathname: "/articulos", query: { categoria: "backend" } },
           description: "Node.js, Python, .NET y tecnologías de servidor",
         },
         {
           title: "Mobile",
-          href: "/articulos/categoria/mobile",
+          href: { pathname: "/articulos", query: { categoria: "mobile" } },
           description: "React Native, Flutter y desarrollo móvil",
         },
         {
           title: "DevOps",
-          href: "/articulos/categoria/devops",
+          href: { pathname: "/articulos", query: { categoria: "devops" } },
           description: "CI/CD, Docker, Kubernetes y más",
         },
         {
           title: "Inteligencia Artificial",
-          href: "/articulos/categoria/inteligencia-artificial",
+          href: {
+            pathname: "/articulos",
+            query: { categoria: "inteligencia-artificial" },
+          },
           description:
             "Inteligencia Artificial y Machine Learning usando python",
         },
@@ -285,101 +288,40 @@ export default function MainHeader() {
                         Navegación
                       </h3>
                       <div className="space-y-2">
-                        <Link
-                          href="/"
-                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                          onClick={() => setIsSidebarOpen(false)}
-                        >
-                          <HomeIcon className="h-5 w-5" />
-                          <span>Inicio</span>
-                        </Link>
-                        <Link
-                          href="/articulos"
-                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                          onClick={() => setIsSidebarOpen(false)}
-                        >
-                          <Rss className="h-5 w-5" />
-                          <span>Artículos</span>
-                        </Link>
-                        <Link
-                          href="/comunidad"
-                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                          onClick={() => setIsSidebarOpen(false)}
-                        >
-                          <Users className="h-5 w-5" />
-                          <span>Comunidad</span>
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Categorías */}
-                    <div className="mb-6">
-                      <h3 className="text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs font-semibold mb-3 flex items-center">
-                        <Grid2x2 className="h-4 w-4 mr-2" />
-                        Categorías
-                      </h3>
-                      <div className="space-y-3">
-                        {[
-                          {
-                            name: "Frontend",
-                            emoji: "🎨",
-                            color: "bg-blue-500",
-                            href: "/articulos/categoria/frontend",
-                          },
-                          {
-                            name: "Backend",
-                            emoji: "⚙️",
-                            color: "bg-green-500",
-                            href: "/articulos/categoria/backend",
-                          },
-                          {
-                            name: "Mobile",
-                            emoji: "📱",
-                            color: "bg-purple-500",
-                            href: "/articulos/categoria/mobile",
-                          },
-                          {
-                            name: "DevOps",
-                            emoji: "🚀",
-                            color: "bg-orange-500",
-                            href: "/articulos/categoria/devops",
-                          },
-                          {
-                            name: "AI",
-                            emoji: "🤖",
-                            color: "bg-pink-500",
-                            href: "/articulos/categoria/inteligencia-artificial",
-                          },
-                        ].map((category) => (
-                          <Link
-                            key={category.name}
-                            href={category.href}
-                            className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
-                            onClick={() => setIsSidebarOpen(false)}
-                          >
-                            <div
-                              className={`w-8 h-8 rounded-lg ${category.color} flex items-center justify-center text-white text-sm font-medium shadow-sm`}
+                        {navigationItems.map((item) => {
+                          return (item.children || []).length <= 0 ? (
+                            <Link
+                              key={item.title}
+                              href={item.href}
+                              className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                              onClick={() => setIsSidebarOpen(false)}
                             >
-                              {category.emoji}
+                              <p className="!text-black">{item.icon}</p>
+                              <span>{item.title}</span>
+                            </Link>
+                          ) : (
+                            <div className="mb-6" key={item.title}>
+                              <h3 className="text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs font-semibold mb-3 flex items-center">
+                                <Grid2x2 className="h-4 w-4 mr-2" />
+                                Categorías
+                              </h3>
+                              <div className="space-y-3">
+                                {(item.children || []).map((category) => (
+                                  <Link
+                                    key={category.title}
+                                    href={category.href}
+                                    className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
+                                    onClick={() => setIsSidebarOpen(false)}
+                                  >
+                                    <span>{category.title}</span>
+                                  </Link>
+                                ))}
+                              </div>
                             </div>
-                            <span>{category.name}</span>
-                          </Link>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
-
-                    {/* Búsqueda */}
-                    {/* <div className="mb-6">
-                      <h3 className="text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs font-semibold mb-3 flex items-center">
-                        <Search className="h-4 w-4 mr-2" />
-                        Búsqueda
-                      </h3>
-                      <Input
-                        placeholder="Buscar artículos..."
-                        className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
-                        autoFocus={false}
-                      />
-                    </div> */}
                   </div>
 
                   {/* Footer del Sidebar */}

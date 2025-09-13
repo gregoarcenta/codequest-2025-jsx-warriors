@@ -388,14 +388,14 @@ export default function RegisterPage() {
                       >
                         Acepto los{" "}
                         <Link
-                          href="/terms"
+                          href="/terminos-y-condiciones"
                           className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 underline font-medium"
                         >
                           términos y condiciones
                         </Link>{" "}
                         y la{" "}
                         <Link
-                          href="/privacy"
+                          href="/politicas-de-privacidad"
                           className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 underline font-medium"
                         >
                           política de privacidad
