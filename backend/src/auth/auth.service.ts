@@ -1,6 +1,7 @@
 import {
   Injectable,
   NotFoundException,
+  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,14 +15,27 @@ import { SignInDto } from './dto/sign-in.dto';
 import { User } from './entities/user.entity';
 import { UserResponse } from './interfaces/user-response';
 import { DiscordUser } from './interfaces/discord-user';
+import { userInitialData } from '../data/user.data';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     private readonly handlerException: HandlerException,
     private readonly jwtService: JwtService,
   ) {}
+
+  async onModuleInit() {
+    try {
+      const count = await this.usersRepository.count();
+      if (count === 0) {
+        const { user } = await this.signUp(userInitialData[0]);
+        console.log(`User ${user.fullName} with ${user.roles[0]} role created`);
+      }
+    } catch (err) {
+      this.handlerException.handlerDBException(err);
+    }
+  }
 
   async signUp(signUpDto: SignUpDto): Promise<UserResponse> {
     const existingUser = await this.usersRepository.findOneBy({
