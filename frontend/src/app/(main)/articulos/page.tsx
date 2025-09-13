@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,8 +9,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -21,30 +27,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Separator } from "@/components/ui/separator";
-import {
-  Search,
-  Filter,
-  Calendar,
-  User,
-  Eye,
-  Heart,
-  Share2,
   BookOpen,
-  TrendingUp,
-  Grid3x3,
   Brush,
+  Calendar,
+  Eye,
+  Filter,
+  Heart,
   MessageSquare,
+  Search,
+  User,
 } from "lucide-react";
-import { Label } from "@/components/ui/label";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
 // Mock data para artículos
 const mockArticles = [
@@ -316,15 +311,6 @@ export default function ArticlesPage() {
     startIndex + articlesPerPage
   );
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Hero Section / Portada */}
@@ -499,7 +485,12 @@ export default function ArticlesPage() {
 
                     <CardHeader className="pb-3">
                       <CardTitle className="text-xl group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2 dark:text-white">
-                        <Link href={`/articulos/${article.id}`}>
+                        <Link
+                          href={`/articulos/${String(article.title)
+                            .toLowerCase()
+                            .replace(/\s+/g, "-")
+                            .replace(/[^a-z0-9\-]/g, "")}`}
+                        >
                           {article.title}
                         </Link>
                       </CardTitle>

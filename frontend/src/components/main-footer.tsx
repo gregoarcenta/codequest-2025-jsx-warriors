@@ -1,19 +1,14 @@
-"use client";
-import Link from "next/link";
-import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import {
-  Youtube,
-  Twitter,
-  Linkedin,
   Facebook,
-  MessageCircle,
   Globe,
-  HomeIcon,
-  Rss,
-  Grid2x2,
-  Users,
+  Linkedin,
+  MessageCircle,
+  Twitter,
+  Youtube,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function MainFooter() {
   interface Category {
@@ -22,39 +17,11 @@ export default function MainFooter() {
     description: string;
   }
 
-  const categories: Category[] = [
-    {
-      title: "Frontend",
-      href: "/articulos/categoria/frontend",
-      description: "React, Vue, Angular y más tecnologías frontend",
-    },
-    {
-      title: "Backend",
-      href: "/articulos/categoria/backend",
-      description: "Node.js, Python, .NET y tecnologías de servidor",
-    },
-    {
-      title: "Mobile",
-      href: "/articulos/categoria/mobile",
-      description: "React Native, Flutter y desarrollo móvil",
-    },
-    {
-      title: "DevOps",
-      href: "/articulos/categoria/devops",
-      description: "CI/CD, Docker, Kubernetes y más",
-    },
-    {
-      title: "Inteligencia Artificial",
-      href: "/articulos/categoria/inteligencia-artificial",
-      description: "Inteligencia Artificial y Machine Learning usando python",
-    },
-  ];
-
   return (
     <footer className="bg-slate-900 text-white">
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
@@ -182,28 +149,22 @@ export default function MainFooter() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/articles"
+                  href="/"
+                  className="text-slate-300 hover:text-purple-400 transition-colors text-sm"
+                >
+                  Inicio
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/articulos"
                   className="text-slate-300 hover:text-purple-400 transition-colors text-sm"
                 >
                   Todos los Artículos
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/tutoriales"
-                  className="text-slate-300 hover:text-purple-400 transition-colors text-sm"
-                >
-                  Tutoriales
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/recursos"
-                  className="text-slate-300 hover:text-purple-400 transition-colors text-sm"
-                >
-                  Recursos Gratuitos
-                </Link>
-              </li>
+
               <li>
                 <Link
                   href="/comunidad"
@@ -212,19 +173,11 @@ export default function MainFooter() {
                   Comunidad
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/newsletter"
-                  className="text-slate-300 hover:text-purple-400 transition-colors text-sm"
-                >
-                  Newsletter
-                </Link>
-              </li>
             </ul>
           </div>
 
           {/* Categories */}
-          <div className="space-y-4 hidden lg:block">
+          {/* <div className="space-y-4 hidden lg:block">
             <h3 className="font-semibold text-lg">Categorías</h3>
             <ul className="space-y-2">
               {categories.map((category) => (
@@ -238,15 +191,15 @@ export default function MainFooter() {
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
 
           {/* Support */}
-          <div className="space-y-4 hidden lg:block">
+          <div className="space-y-4 ">
             <h3 className="font-semibold text-lg">Soporte</h3>
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/contacto"
+                  href="/contactanos"
                   className="text-slate-300 hover:text-purple-400 transition-colors text-sm"
                 >
                   Contáctanos
@@ -254,7 +207,7 @@ export default function MainFooter() {
               </li>
               <li>
                 <Link
-                  href="/faq"
+                  href="/preguntas-frecuentes"
                   className="text-slate-300 hover:text-purple-400 transition-colors text-sm"
                 >
                   Preguntas Frecuentes
@@ -262,7 +215,7 @@ export default function MainFooter() {
               </li>
               <li>
                 <Link
-                  href="/terms"
+                  href="/terminos-y-condiciones"
                   className="text-slate-300 hover:text-purple-400 transition-colors text-sm"
                 >
                   Términos y Condiciones
@@ -270,7 +223,7 @@ export default function MainFooter() {
               </li>
               <li>
                 <Link
-                  href="/privacy"
+                  href="/politicas-de-privacidad"
                   className="text-slate-300 hover:text-purple-400 transition-colors text-sm"
                 >
                   Política de Privacidad
