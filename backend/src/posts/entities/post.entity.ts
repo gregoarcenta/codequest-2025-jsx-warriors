@@ -110,13 +110,16 @@ export class Post {
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt: Date;
 
-  @BeforeInsert()
   @BeforeUpdate()
-  updatePublishAt() {
-    if (this.status === PostStatus.PUBLISHED) {
+  updatePublishAtOnStatusChange() {
+    if (this.status === PostStatus.PUBLISHED && !this.publishedAt) {
       this.publishedAt = new Date();
     }
+  }
 
+  @BeforeInsert()
+  @BeforeUpdate()
+  changeSlugOnTitleChange() {
     this.slug = this.generateSlug(this.title);
   }
 

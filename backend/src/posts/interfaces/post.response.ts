@@ -10,7 +10,8 @@ class CategoryResponse extends PickType(Category, ['id', 'name']) {}
 export class PostResponse extends OmitType(Post, [
   'author',
   'category',
-  'updatePublishAt',
+  'changeSlugOnTitleChange',
+  'updatePublishAtOnStatusChange',
 ] as const) {
   @ApiProperty({ description: 'Author post', type: AuthorResponse })
   author: AuthorResponse;
