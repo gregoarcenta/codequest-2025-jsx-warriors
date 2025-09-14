@@ -16,11 +16,29 @@ import { Auth, GetUser } from '../auth/decorators';
 import { Role } from '../config';
 import { User } from '../auth/entities/user.entity';
 import { PostStatus } from './enums/post-status';
+import { PostsFilterDto } from './dto/filter.dto';
+import { PaginateDto } from '../common/dto/paginate.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
+
+  /* ────────  PÚBLICO / FRONTEND  ──────── */
+  @Get('featured')
+  findAllFeatured(@Query() paginateDto: PaginateDto) {
+    return this.postsService.findAllFeatured(paginateDto);
+  }
+
+  @Get('published')
+  findAllPublished(@Query() filterDto: PostsFilterDto) {
+    return this.postsService.findAllPublished(filterDto);
+  }
+
+  @Get('published/:term')
+  findOnePublished(@Param('term') term: string) {
+    return this.postsService.findOne(term, { onlyPublished: true });
+  }
 
   /* ────────  ADMIN / BACKOFFICE  ──────── */
   @Post()
@@ -67,25 +85,4 @@ export class PostsController {
   draftPost(@Param('id', ParseUUIDPipe) id: string) {
     return this.postsService.updatePostStatus(id, PostStatus.DRAFT);
   }
-
-  /* ────────  PÚBLICO / FRONTEND  ──────── */
-  @Get('published/:term')
-  findOnePublished(@Param('term') term: string) {
-    return this.postsService.findOne(term, { onlyPublished: true });
-  }
-
-  @Get('published')
-  findAllPublished() {
-    return this.postsService.findAllPublished();
-  }
-
-  @Get('featured')
-  findAllFeatured() {
-    return this.postsService.findAllFeatured();
-  }
-
-  // @Get('filter')
-  // findByFilter(@Query() filterDto: PostsFilterDto) {
-  //   return this.postsService.findPosts(filterDto);
-  // }
 }

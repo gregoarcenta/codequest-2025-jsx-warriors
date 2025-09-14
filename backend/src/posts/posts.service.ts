@@ -8,6 +8,10 @@ import { Repository } from 'typeorm';
 import { PostStatus } from './enums/post-status';
 import { HandlerException } from '../common/exceptions/handler.exception';
 import { isUUID } from 'class-validator';
+import { PostResponse } from './interfaces/post.response';
+import { PostsFilterDto } from './dto/filter.dto';
+import { PaginateDto } from '../common/dto/paginate.dto';
+import { PostsResponse } from './interfaces/posts.response';
 
 @Injectable()
 export class PostsService implements OnModuleInit {
@@ -21,7 +25,10 @@ export class PostsService implements OnModuleInit {
     console.log('inicio del modulo de posts');
   }
 
-  async create(createPostDto: CreatePostDto, user: User): Promise<Post> {
+  async create(
+    createPostDto: CreatePostDto,
+    user: User,
+  ): Promise<PostResponse> {
     try {
       const post = this.postRepository.create({
         ...createPostDto,
@@ -48,7 +55,7 @@ export class PostsService implements OnModuleInit {
   async findOne(
     term: string,
     options?: { onlyPublished?: boolean },
-  ): Promise<Post> {
+  ): Promise<PostResponse> {
     let post: Post = null;
     const query = this.postRepository
       .createQueryBuilder('post')
@@ -73,10 +80,13 @@ export class PostsService implements OnModuleInit {
 
     if (!post) throw new NotFoundException(`Post "${term}" not found`);
 
-    return post;
+    return this.transformPostData(post);
   }
 
-  async update(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
+  async update(
+    id: string,
+    updatePostDto: UpdatePostDto,
+  ): Promise<PostResponse> {
     let post: Post = null;
     try {
       post = await this.postRepository.preload({
@@ -101,7 +111,10 @@ export class PostsService implements OnModuleInit {
     return this.findOne(id);
   }
 
-  async updatePostStatus(id: string, status: PostStatus): Promise<Post> {
+  async updatePostStatus(
+    id: string,
+    status: PostStatus,
+  ): Promise<PostResponse> {
     const post = await this.findOne(id);
 
     post.status = status;
@@ -113,11 +126,47 @@ export class PostsService implements OnModuleInit {
     return post;
   }
 
-  findAllPublished() {
+  findAllPublished(postsFilterDto: PostsFilterDto) {
+    console.log(postsFilterDto);
     return `This action returns all posts published`;
   }
 
-  findAllFeatured() {
-    return `This action returns all posts featured`;
+  async findAllFeatured(paginateDto: PaginateDto): Promise<PostsResponse> {
+    const { limit, page } = paginateDto;
+    const skip = (page - 1) * limit;
+
+    const [posts, total] = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.category', 'category')
+      .where('post.status = :status AND post.is_featured = true', {
+        status: PostStatus.PUBLISHED,
+      })
+      .orderBy('post.publishedAt', 'DESC')
+      .take(limit)
+      .skip(skip)
+      .getManyAndCount();
+
+    return {
+      posts: posts.map((post) => this.transformPostData(post)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  transformPostData(post: Post): PostResponse {
+    return {
+      ...post,
+      author: {
+        id: post.author.id,
+        fullName: post.author.fullName,
+      },
+      category: {
+        id: post.category.id,
+        name: post.category.name,
+      },
+    };
   }
 }

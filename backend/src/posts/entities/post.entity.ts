@@ -65,6 +65,14 @@ export class Post {
   @Column({ type: 'enum', enum: PostStatus, default: PostStatus.DRAFT })
   status: PostStatus;
 
+  @ApiProperty({
+    description: 'Post featured status',
+    example: false,
+    default: false,
+  })
+  @Column({ type: 'boolean', default: false, name: 'is_featured' })
+  isFeatured: boolean;
+
   @ManyToOne(() => User, { eager: true, nullable: false })
   @JoinColumn({ name: 'author_id' })
   author: User;
