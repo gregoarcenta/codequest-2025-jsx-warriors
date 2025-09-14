@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUUID, Length, IsUrl } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsUUID,
+  Length,
+  IsUrl,
+  IsBoolean,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreatePostDto {
@@ -31,6 +38,14 @@ export class CreatePostDto {
   @IsUrl()
   @IsOptional()
   coverImageUrl?: string;
+
+  @ApiPropertyOptional({
+    description: 'Post featured status',
+    example: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isFeatured?: boolean;
 
   @ApiPropertyOptional({
     description: 'Category ID',

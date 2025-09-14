@@ -164,8 +164,8 @@ export class PostsService implements OnModuleInit {
         fullName: post.author.fullName,
       },
       category: {
-        id: post.category.id,
-        name: post.category.name,
+        id: post.category?.id,
+        name: post.category?.name,
       },
     };
   }
