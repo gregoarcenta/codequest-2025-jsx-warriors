@@ -12,6 +12,7 @@ import { PostResponse } from './interfaces/post.response';
 import { PostsFilterDto } from './dto/filter.dto';
 import { PaginateDto } from '../common/dto/paginate.dto';
 import { PostsResponse } from './interfaces/posts.response';
+import { SortBy } from './enums/sort-by';
 
 @Injectable()
 export class PostsService implements OnModuleInit {
@@ -46,10 +47,6 @@ export class PostsService implements OnModuleInit {
     } catch (err) {
       return this.handlerException.handlerDBException(err);
     }
-  }
-
-  async findAll(): Promise<Post[]> {
-    return this.postRepository.find();
   }
 
   async findOne(
@@ -126,9 +123,59 @@ export class PostsService implements OnModuleInit {
     return post;
   }
 
-  findAllPublished(postsFilterDto: PostsFilterDto) {
-    console.log(postsFilterDto);
-    return `This action returns all posts published`;
+  async findAll(
+    postsFilterDto: PostsFilterDto,
+    options?: { onlyPublished?: boolean },
+  ): Promise<PostsResponse> {
+    const { limit, page, title, categoryId, authorId, sortBy } = postsFilterDto;
+    const skip = (page - 1) * limit;
+
+    const query = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.category', 'category');
+
+    if (options?.onlyPublished) {
+      query.where('post.status = :status', { status: PostStatus.PUBLISHED });
+    }
+
+    if (title) {
+      const whereClause = options?.onlyPublished ? 'andWhere' : 'where';
+      query[whereClause]('post.title ILIKE :title', { title: `%${title}%` });
+    }
+
+    if (categoryId) {
+      const whereClause =
+        !options?.onlyPublished && !title ? 'where' : 'andWhere';
+      query[whereClause]('category.id = :categoryId', { categoryId });
+    }
+
+    if (authorId) {
+      const whereClause =
+        !options?.onlyPublished && !title && !categoryId ? 'where' : 'andWhere';
+      query[whereClause]('author.id = :authorId', { authorId });
+    }
+
+    switch (sortBy) {
+      case SortBy.RECENT:
+        query.orderBy('post.publishedAt', 'DESC');
+        break;
+      case SortBy.OLD:
+        query.orderBy('post.publishedAt', 'ASC');
+        break;
+    }
+
+    query.take(limit).skip(skip);
+
+    const [posts, total] = await query.getManyAndCount();
+
+    return {
+      posts: posts.map((post) => this.transformPostData(post)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findAllFeatured(paginateDto: PaginateDto): Promise<PostsResponse> {

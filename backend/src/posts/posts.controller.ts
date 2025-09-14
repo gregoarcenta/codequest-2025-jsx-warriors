@@ -32,7 +32,7 @@ export class PostsController {
 
   @Get('published')
   findAllPublished(@Query() filterDto: PostsFilterDto) {
-    return this.postsService.findAllPublished(filterDto);
+    return this.postsService.findAll(filterDto, { onlyPublished: true });
   }
 
   @Get('published/:term')
@@ -49,8 +49,8 @@ export class PostsController {
 
   @Get()
   @Auth(Role.ADMIN)
-  findAll() {
-    return this.postsService.findAll();
+  findAll(@Query() filterDto: PostsFilterDto) {
+    return this.postsService.findAll(filterDto);
   }
 
   @Get(':term')
