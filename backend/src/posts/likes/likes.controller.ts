@@ -9,6 +9,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Auth, GetUser } from '../../auth/decorators';
 import { LikesService } from './likes.service';
 import { User } from '../../auth/entities/user.entity';
+import { ApiToggleLikeResponse } from '../../swagger/decorators/likes/toggle-like.decorator';
 
 @ApiTags('Likes')
 @Controller('likes')
@@ -18,6 +19,7 @@ export class LikesController {
   @Post(':postId')
   @Auth()
   @HttpCode(204)
+  @ApiToggleLikeResponse()
   toggleLike(
     @Param('postId', ParseUUIDPipe) postId: string,
     @GetUser() user: User,

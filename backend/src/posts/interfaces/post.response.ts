@@ -15,6 +15,10 @@ export class PostResponse extends OmitType(Post, [
 ] as const) {
   @ApiProperty({ description: 'Author post', type: AuthorResponse })
   author: AuthorResponse;
+
   @ApiProperty({ description: 'Category post', type: CategoryResponse })
   category: CategoryResponse;
+
+  @ApiProperty({ description: 'Likes count', example: '10' })
+  likesCount: number;
 }

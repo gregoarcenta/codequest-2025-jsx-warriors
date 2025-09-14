@@ -206,9 +206,10 @@ export class PostsService implements OnModuleInit {
     };
   }
 
-  transformPostData(post: Post): PostResponse {
+  transformPostData(post: Post & { likesCount?: number }): PostResponse {
     return {
       ...post,
+      likesCount: post.likesCount || 0,
       author: {
         id: post.author.id,
         fullName: post.author.fullName,
