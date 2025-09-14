@@ -118,7 +118,12 @@ export class AuthService implements OnModuleInit {
     let user: User;
 
     try {
-      user = await this.usersRepository.findOneBy({ id });
+      user = await this.usersRepository
+        .createQueryBuilder('user')
+        .loadRelationCountAndMap('user.likesCount', 'user.likes')
+        .loadRelationCountAndMap('user.postsCount', 'user.posts')
+        .where('user.id = :id', { id })
+        .getOne();
     } catch (err) {
       this.handlerException.handlerDBException(err);
     }

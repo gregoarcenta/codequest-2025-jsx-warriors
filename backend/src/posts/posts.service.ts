@@ -56,6 +56,7 @@ export class PostsService implements OnModuleInit {
     let post: Post = null;
     const query = this.postRepository
       .createQueryBuilder('post')
+      .loadRelationCountAndMap('post.likesCount', 'post.likes')
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.category', 'category');
 
@@ -132,6 +133,7 @@ export class PostsService implements OnModuleInit {
 
     const query = this.postRepository
       .createQueryBuilder('post')
+      .loadRelationCountAndMap('post.likesCount', 'post.likes')
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.category', 'category');
 
@@ -184,6 +186,7 @@ export class PostsService implements OnModuleInit {
 
     const [posts, total] = await this.postRepository
       .createQueryBuilder('post')
+      .loadRelationCountAndMap('post.likesCount', 'post.likes')
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.category', 'category')
       .where('post.status = :status AND post.is_featured = true', {

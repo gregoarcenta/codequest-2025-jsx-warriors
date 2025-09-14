@@ -2,11 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from '../../config';
 import { ApiProperty } from '@nestjs/swagger';
+import { PostLike } from '../../posts/entities/likes.entity';
+import { Post } from '../../posts/entities/post.entity';
 
 @Entity('users')
 export class User {
@@ -57,17 +60,15 @@ export class User {
   @Column({ type: 'text', nullable: true, name: 'avatar_url' })
   avatarUrl: string;
 
-  @ApiProperty({})
+  @ApiProperty({ description: 'User bio', example: 'This is my bio' })
   @Column({ type: 'varchar', length: 254, nullable: true })
   bio: string;
 
-  @ApiProperty({ description: 'User posts count', example: 12 })
-  @Column({ type: 'int', default: 0, name: 'posts_count' })
-  postsCount: number;
+  @OneToMany(() => Post, (post) => post.author)
+  posts: Post[];
 
-  @ApiProperty({ description: 'User likes count', example: 34 })
-  @Column({ type: 'int', default: 0, name: 'likes_count' })
-  likesCount: number;
+  @OneToMany(() => PostLike, (postLike) => postLike.user)
+  likes: PostLike[];
 
   @ApiProperty({
     description: 'User isActive',

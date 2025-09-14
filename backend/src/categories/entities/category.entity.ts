@@ -2,10 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Post } from '../../posts/entities/post.entity';
 
 @Entity('categories')
 export class Category {
@@ -61,11 +63,7 @@ export class Category {
   })
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt: Date;
-  // posts: [];
-  // likes: [];
-  // comments: [];
-  // tags: [];
-  // users: [];
-  // parentCategory: Category;
-  // childrenCategories: Category[];
+
+  @OneToMany(() => Post, (post) => post.category)
+  posts: Post[];
 }

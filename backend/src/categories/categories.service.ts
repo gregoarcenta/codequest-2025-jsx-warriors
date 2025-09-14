@@ -11,6 +11,7 @@ import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { HandlerException } from '../common/exceptions/handler.exception';
 import { categoriesInitialData } from '../data/categories.data';
+import { PostStatus } from '../posts/enums/post-status';
 
 @Injectable()
 export class CategoriesService implements OnModuleInit {
@@ -49,6 +50,18 @@ export class CategoriesService implements OnModuleInit {
     try {
       const queryBuilder =
         this.categoryRepository.createQueryBuilder('category');
+
+      if (options?.onlyActive || options?.onlyFeatured) {
+        queryBuilder.loadRelationCountAndMap(
+          'category.postsCount',
+          'category.posts',
+          'post',
+          (qb) =>
+            qb.where('post.status = :isPublished', {
+              isPublished: PostStatus.PUBLISHED,
+            }),
+        );
+      }
 
       if (options?.onlyActive) {
         queryBuilder.where('category.is_active = :isActive', {
