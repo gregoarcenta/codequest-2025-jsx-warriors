@@ -47,13 +47,6 @@ export class AuthController {
     return this.authService.signIn(signInDto);
   }
 
-  @Get('check-status')
-  @Auth()
-  @ApiCheckStatusResponse()
-  checkStatus(@GetUser() user: User) {
-    return this.authService.checkStatus(user);
-  }
-
   @Get('discord')
   @UseGuards(AuthGuard('discord'))
   @ApiDiscordSignUpResponse()
@@ -77,5 +70,12 @@ export class AuthController {
     });
 
     res.redirect(this.configService.get('FRONTEND_URL'));
+  }
+
+  @Get('check-status')
+  @Auth()
+  @ApiCheckStatusResponse()
+  checkStatus(@GetUser() user: User) {
+    return this.authService.checkStatus(user);
   }
 }

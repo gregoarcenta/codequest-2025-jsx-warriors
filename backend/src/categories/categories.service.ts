@@ -45,30 +45,24 @@ export class CategoriesService implements OnModuleInit {
     }
   }
 
-  async findAll() {
+  async findAll(options?: { onlyActive?: boolean; onlyFeatured?: boolean }) {
     try {
-      return await this.categoryRepository.find();
-    } catch (err) {
-      this.handlerException.handlerDBException(err);
-    }
-  }
+      const queryBuilder =
+        this.categoryRepository.createQueryBuilder('category');
 
-  async findAllActives() {
-    try {
-      return await this.categoryRepository.findBy({
-        isActive: true,
-      });
-    } catch (err) {
-      this.handlerException.handlerDBException(err);
-    }
-  }
+      if (options?.onlyActive) {
+        queryBuilder.where('category.is_active = :isActive', {
+          isActive: true,
+        });
+      }
 
-  async findAllFeatures() {
-    try {
-      return await this.categoryRepository.findBy({
-        isFeatured: true,
-        isActive: true,
-      });
+      if (options?.onlyFeatured) {
+        queryBuilder
+          .where('category.is_active = :isActive', { isActive: true })
+          .andWhere('category.is_featured = :isFeatured', { isFeatured: true });
+      }
+
+      return await queryBuilder.getMany();
     } catch (err) {
       this.handlerException.handlerDBException(err);
     }

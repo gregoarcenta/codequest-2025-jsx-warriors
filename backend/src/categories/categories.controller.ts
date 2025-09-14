@@ -30,6 +30,20 @@ import { ApiFindAllActivesResponse } from '../swagger/decorators/categories/api-
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
+  /* ────────  PÚBLICO / FRONTEND  ──────── */
+  @Get('actives')
+  @ApiFindAllActivesResponse()
+  findAllActives() {
+    return this.categoriesService.findAll({ onlyActive: true });
+  }
+
+  @Get('features')
+  @ApiFindAllFeaturesResponse()
+  findAllFeatures() {
+    return this.categoriesService.findAll({ onlyFeatured: true });
+  }
+
+  /* ────────  ADMIN / BACKOFFICE  ──────── */
   @Post()
   @Auth(Role.ADMIN)
   @ApiCreateResponse()
@@ -42,18 +56,6 @@ export class CategoriesController {
   @ApiFindAllResponse()
   findAll() {
     return this.categoriesService.findAll();
-  }
-
-  @Get('actives')
-  @ApiFindAllActivesResponse()
-  findAllActives() {
-    return this.categoriesService.findAllActives();
-  }
-
-  @Get('features')
-  @ApiFindAllFeaturesResponse()
-  findAllFeatures() {
-    return this.categoriesService.findAllFeatures();
   }
 
   @Get(':id')
