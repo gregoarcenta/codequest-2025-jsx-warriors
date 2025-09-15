@@ -7,11 +7,13 @@ import {
   Param,
   ParseUUIDPipe,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Auth, GetUser } from '../auth/decorators';
 import { Role } from '../config';
 import { User } from '../auth/entities/user.entity';
@@ -30,6 +32,8 @@ import {
   ApiPublishPostResponse,
   ApiUpdateResponse,
 } from '../swagger/decorators/posts';
+import { Request } from 'express';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -38,21 +42,32 @@ export class PostsController {
 
   /* ────────  PÚBLICO / FRONTEND  ──────── */
   @Get('featured')
+  @ApiBearerAuth()
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiFindAllFeaturedResponse()
-  findAllFeatured(@Query() paginateDto: PaginateDto) {
-    return this.postsService.findAllFeatured(paginateDto);
+  findAllFeatured(@Query() paginateDto: PaginateDto, @Req() req: Request) {
+    const user = req.user as User;
+    return this.postsService.findAllFeatured(paginateDto, user?.id);
   }
 
   @Get('published')
+  @ApiBearerAuth()
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiFindAllPublishedResponse()
-  findAllPublished(@Query() filterDto: PostsFilterDto) {
-    return this.postsService.findAll(filterDto, { onlyPublished: true });
+  findAllPublished(@Query() filterDto: PostsFilterDto, @Req() req: Request) {
+    const user = req.user as User;
+    return this.postsService.findAll(filterDto, user?.id, {
+      onlyPublished: true,
+    });
   }
 
   @Get('published/:term')
+  @ApiBearerAuth()
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiFindOnePublishedResponse()
-  findOnePublished(@Param('term') term: string) {
-    return this.postsService.findOne(term, { onlyPublished: true });
+  findOnePublished(@Param('term') term: string, @Req() req: Request) {
+    const user = req.user as User;
+    return this.postsService.findOne(term, user?.id, { onlyPublished: true });
   }
 
   /* ────────  ADMIN / BACKOFFICE  ──────── */
@@ -66,15 +81,15 @@ export class PostsController {
   @Get()
   @Auth(Role.ADMIN)
   @ApiFindAllResponse()
-  findAll(@Query() filterDto: PostsFilterDto) {
-    return this.postsService.findAll(filterDto);
+  findAll(@Query() filterDto: PostsFilterDto, @GetUser() user: User) {
+    return this.postsService.findAll(filterDto, user.id);
   }
 
   @Get(':term')
   @Auth(Role.ADMIN)
   @ApiFindOneResponse()
-  findOne(@Param('term') term: string) {
-    return this.postsService.findOne(term);
+  findOne(@Param('term') term: string, @GetUser() user: User) {
+    return this.postsService.findOne(term, user.id);
   }
 
   @Patch(':id')

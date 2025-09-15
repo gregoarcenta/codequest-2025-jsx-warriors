@@ -41,8 +41,6 @@ export class PostsService implements OnModuleInit {
 
       await this.postRepository.save(post);
 
-      await this.userRepository.increment({ id: user.id }, 'postsCount', 1);
-
       return this.findOne(post.id);
     } catch (err) {
       return this.handlerException.handlerDBException(err);
@@ -51,6 +49,7 @@ export class PostsService implements OnModuleInit {
 
   async findOne(
     term: string,
+    userId?: string,
     options?: { onlyPublished?: boolean },
   ): Promise<PostResponse> {
     let post: Post = null;
@@ -59,6 +58,15 @@ export class PostsService implements OnModuleInit {
       .loadRelationCountAndMap('post.likesCount', 'post.likes')
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.category', 'category');
+
+    if (userId) {
+      query.loadRelationCountAndMap(
+        'post.isLiked',
+        'post.likes',
+        'userLike',
+        (qb) => qb.where('userLike.user_id = :userId', { userId }),
+      );
+    }
 
     if (isUUID(term)) query.where('post.id = :term', { term });
     else
@@ -126,6 +134,7 @@ export class PostsService implements OnModuleInit {
 
   async findAll(
     postsFilterDto: PostsFilterDto,
+    userId?: string,
     options?: { onlyPublished?: boolean },
   ): Promise<PostsResponse> {
     const { limit, page, title, categoryId, authorId, sortBy } = postsFilterDto;
@@ -136,6 +145,15 @@ export class PostsService implements OnModuleInit {
       .loadRelationCountAndMap('post.likesCount', 'post.likes')
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.category', 'category');
+
+    if (userId) {
+      query.loadRelationCountAndMap(
+        'post.isLiked',
+        'post.likes',
+        'userLike',
+        (qb) => qb.where('userLike.user_id = :userId', { userId }),
+      );
+    }
 
     if (options?.onlyPublished) {
       query.where('post.status = :status', { status: PostStatus.PUBLISHED });
@@ -180,15 +198,29 @@ export class PostsService implements OnModuleInit {
     };
   }
 
-  async findAllFeatured(paginateDto: PaginateDto): Promise<PostsResponse> {
+  async findAllFeatured(
+    paginateDto: PaginateDto,
+    userId: string,
+  ): Promise<PostsResponse> {
     const { limit, page } = paginateDto;
     const skip = (page - 1) * limit;
 
-    const [posts, total] = await this.postRepository
+    const query = this.postRepository
       .createQueryBuilder('post')
       .loadRelationCountAndMap('post.likesCount', 'post.likes')
       .leftJoinAndSelect('post.author', 'author')
-      .leftJoinAndSelect('post.category', 'category')
+      .leftJoinAndSelect('post.category', 'category');
+
+    if (userId) {
+      query.loadRelationCountAndMap(
+        'post.isLiked',
+        'post.likes',
+        'userLike',
+        (qb) => qb.where('userLike.user_id = :userId', { userId }),
+      );
+    }
+
+    const [posts, total] = await query
       .where('post.status = :status AND post.is_featured = true', {
         status: PostStatus.PUBLISHED,
       })
@@ -206,10 +238,13 @@ export class PostsService implements OnModuleInit {
     };
   }
 
-  transformPostData(post: Post & { likesCount?: number }): PostResponse {
+  transformPostData(
+    post: Post & { likesCount?: number; isLiked?: number },
+  ): PostResponse {
     return {
       ...post,
       likesCount: post.likesCount || 0,
+      isLiked: post.isLiked > 0,
       author: {
         id: post.author.id,
         fullName: post.author.fullName,
