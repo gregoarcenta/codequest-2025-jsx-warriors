@@ -11,7 +11,6 @@ export class PostResponse extends OmitType(Post, [
   'author',
   'category',
   'changeSlugOnTitleChange',
-  'updatePublishAtOnStatusChange',
 ] as const) {
   @ApiProperty({ description: 'Author post', type: AuthorResponse })
   author: AuthorResponse;

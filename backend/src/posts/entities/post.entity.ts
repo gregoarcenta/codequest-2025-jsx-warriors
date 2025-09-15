@@ -9,6 +9,7 @@ import {
   BeforeInsert,
   BeforeUpdate,
   OneToMany,
+  AfterUpdate,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PostStatus } from '../enums/post-status';
@@ -109,13 +110,6 @@ export class Post {
   })
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt: Date;
-
-  @BeforeUpdate()
-  updatePublishAtOnStatusChange() {
-    if (this.status === PostStatus.PUBLISHED && !this.publishedAt) {
-      this.publishedAt = new Date();
-    }
-  }
 
   @BeforeInsert()
   @BeforeUpdate()
