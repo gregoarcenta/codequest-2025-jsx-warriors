@@ -8,11 +8,21 @@ import { AuthModule } from '../auth/auth.module';
 import { LikesController } from './likes/likes.controller';
 import { LikesService } from './likes/likes.service';
 import { PostLike } from './entities/likes.entity';
+import { PostViewLog } from './entities/post-view-log.entity';
+import { PostViewLogCleanupService } from './services/post-view-log-cleanup.service';
 
 @Module({
   controllers: [PostsController, LikesController],
-  providers: [PostsService, HandlerException, LikesService],
-  imports: [AuthModule, TypeOrmModule.forFeature([Post, PostLike])],
+  providers: [
+    PostsService,
+    HandlerException,
+    LikesService,
+    PostViewLogCleanupService,
+  ],
+  imports: [
+    AuthModule,
+    TypeOrmModule.forFeature([Post, PostLike, PostViewLog]),
+  ],
   exports: [TypeOrmModule],
 })
 export class PostsModule {}

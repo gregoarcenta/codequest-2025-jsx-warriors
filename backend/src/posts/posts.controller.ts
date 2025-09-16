@@ -67,7 +67,12 @@ export class PostsController {
   @ApiFindOnePublishedResponse()
   findOnePublished(@Param('term') term: string, @Req() req: Request) {
     const user = req.user as User;
-    return this.postsService.findOne(term, user?.id, { onlyPublished: true });
+    const ip = req.ip;
+    console.log('ip: ', { ip });
+    return this.postsService.findOne(term, user?.id, {
+      onlyPublished: true,
+      ip,
+    });
   }
 
   /* ────────  ADMIN / BACKOFFICE  ──────── */
@@ -88,8 +93,13 @@ export class PostsController {
   @Get(':term')
   @Auth(Role.ADMIN)
   @ApiFindOneResponse()
-  findOne(@Param('term') term: string, @GetUser() user: User) {
-    return this.postsService.findOne(term, user.id);
+  findOne(
+    @Param('term') term: string,
+    @GetUser() user: User,
+    @Req() req: Request,
+  ) {
+    const ip = req.ip;
+    return this.postsService.findOne(term, user.id, { ip });
   }
 
   @Patch(':id')

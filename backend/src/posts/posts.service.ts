@@ -13,12 +13,15 @@ import { PaginateDto } from '../common/dto/paginate.dto';
 import { PostsResponse } from './interfaces/posts.response';
 import { SortBy } from './enums/sort-by';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PostViewLog } from './entities/post-view-log.entity';
 
 @Injectable()
 export class PostsService implements OnModuleInit {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(PostViewLog)
+    private readonly postViewLogRepository: Repository<PostViewLog>,
     private readonly handlerException: HandlerException,
   ) {}
 
@@ -165,7 +168,7 @@ export class PostsService implements OnModuleInit {
   async findOne(
     term: string,
     userId?: string,
-    options?: { onlyPublished?: boolean },
+    options?: { onlyPublished?: boolean; ip?: string },
   ): Promise<PostResponse> {
     const query = this.createBaseQuery(userId);
 
@@ -187,6 +190,30 @@ export class PostsService implements OnModuleInit {
     const post = await this.executeQuery(() => query.getOne());
 
     if (!post) throw new NotFoundException(`Post "${term}" not found`);
+
+    const recentView = await this.executeQuery(async () => {
+      return await this.postViewLogRepository.findOne({
+        where: [
+          { post: { id: post.id }, user: { id: userId } },
+          { post: { id: post.id }, ip: options?.ip },
+        ],
+      });
+    });
+
+    if (options?.onlyPublished && !recentView) {
+      console.log(
+        'Esto se esta ejecutando porque no hay view de este usuario a este post',
+      );
+      const newViewLog = this.postViewLogRepository.create({
+        post,
+        user: userId ? { id: userId } : null,
+        ip: options?.ip,
+      });
+      await this.executeQuery(async () => {
+        await this.postViewLogRepository.save(newViewLog);
+        await this.postRepository.increment({ id: post.id }, 'viewsCount', 1);
+      });
+    }
 
     return this.transformPostData(post);
   }

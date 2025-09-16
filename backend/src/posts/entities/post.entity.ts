@@ -9,7 +9,6 @@ import {
   BeforeInsert,
   BeforeUpdate,
   OneToMany,
-  AfterUpdate,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PostStatus } from '../enums/post-status';
@@ -89,6 +88,14 @@ export class Post {
 
   // @OneToMany(() => Comment, (comment) => comment.post)
   // comments: Comment[];
+
+  @ApiProperty({
+    description: 'Views count',
+    example: 0,
+    default: 0,
+  })
+  @Column({ type: 'int', default: 0, name: 'views_count' })
+  viewsCount: number;
 
   @ApiProperty({
     description: 'Post published date',

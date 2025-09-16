@@ -21,3 +21,4 @@ services:
       - "3000:3000"
     depends_on:
       - postgres
+      #docker compose -f docker-compose.prod.yml up --build -d
