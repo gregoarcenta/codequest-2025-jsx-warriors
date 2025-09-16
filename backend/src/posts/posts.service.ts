@@ -201,17 +201,27 @@ export class PostsService implements OnModuleInit {
     });
 
     if (options?.onlyPublished && !recentView) {
-      console.log(
-        'Esto se esta ejecutando porque no hay view de este usuario a este post',
-      );
-      const newViewLog = this.postViewLogRepository.create({
-        post,
-        user: userId ? { id: userId } : null,
-        ip: options?.ip,
-      });
       await this.executeQuery(async () => {
-        await this.postViewLogRepository.save(newViewLog);
-        await this.postRepository.increment({ id: post.id }, 'viewsCount', 1);
+        await this.postRepository.manager.transaction(async (manager) => {
+          const viewRepo = manager.getRepository(PostViewLog);
+          const postRepo = manager.getRepository(Post);
+          const exists = await viewRepo.findOne({
+            where: [
+              { post: { id: post.id }, user: { id: userId } },
+              { post: { id: post.id }, ip: options?.ip },
+            ],
+          });
+
+          if (!exists) {
+            const newViewLog = viewRepo.create({
+              post,
+              user: userId ? { id: userId } : null,
+              ip: options?.ip,
+            });
+            await viewRepo.save(newViewLog);
+            await postRepo.increment({ id: post.id }, 'viewsCount', 1);
+          }
+        });
       });
     }
 
@@ -239,6 +249,11 @@ export class PostsService implements OnModuleInit {
         break;
       case SortBy.OLD:
         query.orderBy('post.publishedAt', 'ASC');
+        break;
+      case SortBy.VIEWED:
+        query
+          .orderBy('post.viewsCount', 'DESC')
+          .addOrderBy('post.publishedAt', 'DESC');
         break;
       case SortBy.LIKED:
         query
