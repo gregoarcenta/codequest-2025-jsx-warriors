@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -124,32 +125,44 @@ export class AuthService {
   }
 
   async findOrCreateUserDiscord(discordUser: DiscordUser): Promise<User> {
-    const { id: discordId, email, global_name } = discordUser;
-    const avatarUrl = `https://cdn.discordapp.com/avatars/${discordId}/${discordUser.avatar}.png`;
+    const { id: discordId, email, global_name, avatar } = discordUser;
+
+    if (!discordId) throw new BadRequestException('Discord ID is required');
+
+    const avatarUrl = avatar
+      ? `https://cdn.discordapp.com/avatars/${discordId}/${avatar}.png`
+      : null;
 
     try {
-      // Buscar primero por email
-      const user = await this.usersRepository.findOneBy({ email });
+      // Buscar solo por discordId
+      let user = await this.usersRepository.findOne({ where: { discordId } });
 
-      if (user) {
-        // Si el usuario existe pero no tiene discordId, lo actualizamos
-        if (!user.discordId) {
-          user.discordId = discordId;
-          user.avatarUrl = avatarUrl;
+      // Si no hay cuenta vinculada, opcionalmente busca por email
+      if (!user && email) {
+        const byEmail = await this.usersRepository.findOne({
+          where: { email },
+        });
+        if (byEmail) {
+          // Si existe, vincula ese correo a la cuenta de Discord
+          byEmail.discordId = discordId;
+          user = byEmail;
         }
-
-        return await this.usersRepository.save(user);
       }
 
-      // Crear usuario nuevo
-      return await this.usersRepository.save(
-        this.usersRepository.create({
-          discordId,
-          avatarUrl,
-          fullName: global_name,
-          email,
-        }),
-      );
+      if (user) {
+        user.avatarUrl = avatarUrl ?? user.avatarUrl;
+        user.fullName = global_name ?? user.fullName;
+        return this.usersRepository.save(user);
+      }
+
+      // Crear nuevo usuario
+      const newUser = this.usersRepository.create({
+        discordId,
+        email,
+        fullName: global_name,
+        avatarUrl,
+      });
+      return this.usersRepository.save(newUser);
     } catch (err) {
       this.handlerException.handlerDBException(err);
     }
