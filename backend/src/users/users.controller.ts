@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -45,17 +46,21 @@ export class UsersController {
     return this.usersService.updatePassword(user, updatePasswordDto);
   }
 
-  // @Get('me/bookmarks')
-  // @Auth()
-  // findBookmarks(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
-  //   return this.usersService.update(user, updateUserDto);
-  // }
+  @Get('me/bookmarks')
+  @Auth()
+  findBookmarks(@Query() paginateDto: PaginateDto, @GetUser() user: User) {
+    return this.usersService.findBookmarks(user, paginateDto);
+  }
 
-  // @Post('me/bookmarks')
-  // @Auth()
-  // toggleBookmark(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
-  //   return this.usersService.update(user, updateUserDto);
-  // }
+  @Post('me/bookmarks/:postId')
+  @Auth()
+  toggleBookmark(
+    @Param('postId', ParseUUIDPipe) postId: string,
+    @GetUser() user: User,
+  ) {
+    return this.usersService.toggleBookmark(postId, user.id);
+  }
+
   /* ────────  ADMIN / BACKOFFICE  ──────── */
   @Get()
   @Auth(Role.ADMIN)

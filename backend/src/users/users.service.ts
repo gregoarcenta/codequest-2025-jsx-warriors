@@ -15,11 +15,15 @@ import { PaginateDto } from '../common/dto/paginate.dto';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import * as bcrypt from 'bcrypt';
+import { Bookmark } from './entities/bookmark.entity';
+import { PostStatus } from '../posts/enums/post-status';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    @InjectRepository(Bookmark)
+    private readonly bookmarksRepository: Repository<Bookmark>,
     private readonly handlerException: HandlerException,
     private readonly authService: AuthService,
   ) {}
@@ -143,5 +147,51 @@ export class UsersService implements OnModuleInit {
     return {
       message: `User ${user.fullName} password updated successfully`,
     };
+  }
+
+  async findBookmarks(user: User, paginateDto: PaginateDto) {
+    const { page, limit } = paginateDto;
+    const { skip, take } = this.calculatePagination(page, limit);
+
+    const [bookmarks, total] = await this.executeQuery(async () =>
+      this.bookmarksRepository
+        .createQueryBuilder('bookmark')
+        .innerJoinAndSelect('bookmark.post', 'post', 'post.status = :status', {
+          status: PostStatus.PUBLISHED,
+        })
+        .where('bookmark.user_id = :userId', { userId: user.id })
+        .skip(skip)
+        .take(take)
+        .getManyAndCount(),
+    );
+
+    return {
+      bookmarks,
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
+  }
+
+  async toggleBookmark(postId: string, userId: string) {
+    return await this.executeQuery(async () => {
+      const existingLike = await this.bookmarksRepository.findOneBy({
+        post: { id: postId },
+        user: { id: userId },
+      });
+
+      if (existingLike) {
+        await this.bookmarksRepository.remove(existingLike);
+      } else {
+        const newLike = this.bookmarksRepository.create({
+          post: { id: postId },
+          user: { id: userId },
+        });
+        await this.bookmarksRepository.save(newLike);
+      }
+
+      return { message: 'Bookmark updated successfully' };
+    });
   }
 }

@@ -16,6 +16,7 @@ import { User } from '../../users/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
 import { PostLike } from './likes.entity';
 import { Comment } from './comment.entity';
+import { Bookmark } from '../../users/entities/bookmark.entity';
 
 @Entity('posts')
 export class Post {
@@ -86,6 +87,9 @@ export class Post {
 
   @OneToMany(() => PostLike, (postLike) => postLike.post)
   likes: PostLike[];
+
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.post)
+  bookmarks: Bookmark[];
 
   @OneToMany(() => Comment, (comment) => comment.post)
   comments: Comment[];
