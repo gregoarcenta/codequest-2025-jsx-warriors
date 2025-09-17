@@ -16,6 +16,13 @@ import { Auth, GetUser } from '../../auth/decorators';
 import { PaginateDto } from '../../common/dto/paginate.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { Role } from '../../config';
+import {
+  ApiCreateCommentResponse,
+  ApiFindAllPerPostResponse,
+  ApiFindOneResponse,
+  ApiUpdateResponse,
+  ApiToggleVisibilityResponse,
+} from '../../swagger/decorators/comments';
 
 @ApiTags('Comments')
 @Controller('comments')
@@ -23,6 +30,7 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Get('post/:postId')
+  @ApiFindAllPerPostResponse()
   findAllPerPost(
     @Param('postId', ParseUUIDPipe) postId: string,
     @Query() paginateDto: PaginateDto,
@@ -32,6 +40,7 @@ export class CommentsController {
 
   @Post(':postId')
   @Auth()
+  @ApiCreateCommentResponse()
   createComment(
     @Param('postId', ParseUUIDPipe) postId: string,
     @Body() createCommentDto: CreateCommentDto,
@@ -46,12 +55,14 @@ export class CommentsController {
 
   @Get(':id')
   @Auth()
-  async getComment(@Param('id', ParseUUIDPipe) id: string) {
+  @ApiFindOneResponse()
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.commentsService.findOne(id);
   }
 
   @Patch(':id')
   @Auth()
+  @ApiUpdateResponse()
   async updateComment(
     @Param('id') id: string,
     @Body() dto: UpdateCommentDto,
@@ -62,6 +73,7 @@ export class CommentsController {
 
   @Patch(':id/visibility')
   @Auth(Role.ADMIN)
+  @ApiToggleVisibilityResponse()
   toggleVisibility(@Param('id', ParseUUIDPipe) id: string) {
     return this.commentsService.toggleVisibility(id);
   }
