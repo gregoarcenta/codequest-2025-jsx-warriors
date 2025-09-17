@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PostStatus } from '../enums/post-status';
-import { User } from '../../auth/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
 import { PostLike } from './likes.entity';
 import { Comment } from './comment.entity';

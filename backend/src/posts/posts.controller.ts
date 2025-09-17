@@ -16,7 +16,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Auth, GetUser } from '../auth/decorators';
 import { Role } from '../config';
-import { User } from '../auth/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { PostStatus } from './enums/post-status';
 import { PostsFilterDto } from './dto/filter.dto';
 import { PaginateDto } from '../common/dto/paginate.dto';

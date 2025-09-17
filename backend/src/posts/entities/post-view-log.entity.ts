@@ -8,7 +8,7 @@ import {
   Column,
 } from 'typeorm';
 import { Post } from './post.entity';
-import { User } from '../../auth/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('post_view_logs')
 export class PostViewLog {

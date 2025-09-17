@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
-import { User } from '../auth/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { Repository, SelectQueryBuilder } from 'typeorm';
@@ -19,7 +19,6 @@ import { PostViewLog } from './entities/post-view-log.entity';
 export class PostsService implements OnModuleInit {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(PostViewLog)
     private readonly postViewLogRepository: Repository<PostViewLog>,
     private readonly handlerException: HandlerException,

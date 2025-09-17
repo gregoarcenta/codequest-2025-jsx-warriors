@@ -1,7 +1,7 @@
 import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import { Post } from '../entities/post.entity';
 import { Category } from '../../categories/entities/category.entity';
-import { User } from '../../auth/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 class AuthorResponse extends PickType(User, ['id', 'fullName']) {}
 

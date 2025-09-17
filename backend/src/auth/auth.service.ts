@@ -1,7 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,32 +11,19 @@ import { HandlerException } from '../common/exceptions/handler.exception';
 import { IPayloadJwt } from './strategies/jwt.strategy';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
-import { User } from './entities/user.entity';
-import { UserResponse } from './interfaces/user-response';
+import { User } from '../users/entities/user.entity';
+import { AuthResponse } from './interfaces/auth-response';
 import { DiscordUser } from './interfaces/discord-user';
-import { userInitialData } from '../data/user.data';
 
 @Injectable()
-export class AuthService implements OnModuleInit {
+export class AuthService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     private readonly handlerException: HandlerException,
     private readonly jwtService: JwtService,
   ) {}
 
-  async onModuleInit() {
-    try {
-      const count = await this.usersRepository.count();
-      if (count === 0) {
-        const { user } = await this.signUp(userInitialData[0]);
-        console.log(`User ${user.fullName} with ${user.roles[0]} role created`);
-      }
-    } catch (err) {
-      this.handlerException.handlerDBException(err);
-    }
-  }
-
-  async signUp(signUpDto: SignUpDto): Promise<UserResponse> {
+  async signUp(signUpDto: SignUpDto): Promise<AuthResponse> {
     const existingUser = await this.usersRepository.findOneBy({
       email: signUpDto.email,
     });
@@ -66,7 +52,7 @@ export class AuthService implements OnModuleInit {
     };
   }
 
-  async signIn(signInDto: SignInDto): Promise<UserResponse> {
+  async signIn(signInDto: SignInDto): Promise<AuthResponse> {
     let user: User;
     try {
       user = await this.usersRepository
@@ -97,7 +83,7 @@ export class AuthService implements OnModuleInit {
     };
   }
 
-  async signInWithDiscord(discordUser: DiscordUser): Promise<UserResponse> {
+  async signInWithDiscord(discordUser: DiscordUser): Promise<AuthResponse> {
     const user = await this.findOrCreateUserDiscord(discordUser);
 
     await this.updateLastLogin(user.id);
@@ -107,7 +93,7 @@ export class AuthService implements OnModuleInit {
     return { user, accessToken };
   }
 
-  async checkStatus(user: User): Promise<UserResponse> {
+  async checkStatus(user: User): Promise<AuthResponse> {
     return {
       user,
       accessToken: await this.getJwtToken({ id: user.id }),

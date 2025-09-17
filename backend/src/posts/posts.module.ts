@@ -15,7 +15,7 @@ import { CommentsController } from './comments/comments.controller';
 import { CommentsService } from './comments/comments.service';
 
 @Module({
-  controllers: [PostsController, LikesController, CommentsController],
+  controllers: [PostsController, CommentsController, LikesController],
   providers: [
     PostsService,
     HandlerException,

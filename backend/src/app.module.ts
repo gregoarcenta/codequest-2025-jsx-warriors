@@ -8,6 +8,7 @@ import { UploadModule } from './upload/upload.module';
 import { CategoriesModule } from './categories/categories.module';
 import { PostsModule } from './posts/posts.module';
 import typeorm from './config/typeorm.config';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import typeorm from './config/typeorm.config';
     }),
     ScheduleModule.forRoot(),
     AuthModule,
+    UsersModule,
     CategoriesModule,
     PostsModule,
     UploadModule,

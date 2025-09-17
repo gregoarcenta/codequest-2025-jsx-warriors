@@ -11,7 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
-import { User } from './entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { Auth, GetUser } from './decorators';
 import { AuthGuard } from '@nestjs/passport';
 import { DiscordUser } from './interfaces/discord-user';

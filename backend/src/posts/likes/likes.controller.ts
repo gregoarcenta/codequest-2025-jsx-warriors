@@ -8,7 +8,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Auth, GetUser } from '../../auth/decorators';
 import { LikesService } from './likes.service';
-import { User } from '../../auth/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { ApiToggleLikeResponse } from '../../swagger/decorators/likes/toggle-like.decorator';
 
 @ApiTags('Likes')

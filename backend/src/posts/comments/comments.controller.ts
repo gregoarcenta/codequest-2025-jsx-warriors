@@ -11,7 +11,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from '../dto/create-comment.dto';
-import { User } from '../../auth/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { Auth, GetUser } from '../../auth/decorators';
 import { PaginateDto } from '../../common/dto/paginate.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
