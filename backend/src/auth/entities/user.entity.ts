@@ -10,6 +10,7 @@ import { Role } from '../../config';
 import { ApiProperty } from '@nestjs/swagger';
 import { PostLike } from '../../posts/entities/likes.entity';
 import { Post } from '../../posts/entities/post.entity';
+import { Comment } from '../../posts/entities/comment.entity';
 
 @Entity('users')
 export class User {
@@ -69,6 +70,9 @@ export class User {
 
   @OneToMany(() => PostLike, (postLike) => postLike.user)
   likes: PostLike[];
+
+  @OneToMany(() => Comment, (comment) => comment.author)
+  comments: Comment[];
 
   @ApiProperty({
     description: 'User isActive',

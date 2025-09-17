@@ -171,11 +171,20 @@ export class PostsService implements OnModuleInit {
     options?: { onlyPublished?: boolean; ip?: string },
   ): Promise<PostResponse> {
     const query = this.createBaseQuery(userId);
+    const status = PostStatus.PUBLISHED;
 
     if (options?.onlyPublished) {
-      query.where('post.status = :status', {
-        status: PostStatus.PUBLISHED,
-      });
+      query.where('post.status = :status', { status });
+      // .leftJoinAndSelect(
+      //   'post.comments',
+      //   'comments',
+      //   'comments.parent IS NULL',
+      // )
+      // .leftJoinAndSelect('comments.author', 'commentAuthor')
+      // .leftJoinAndSelect('comments.children', 'childComments')
+      // .leftJoinAndSelect('childComments.author', 'childCommentAuthor')
+      // .orderBy('comments.createdAt', 'DESC')
+      // .addOrderBy('childComments.createdAt', 'DESC');
     }
 
     const whereClause = options?.onlyPublished ? 'andWhere' : 'where';

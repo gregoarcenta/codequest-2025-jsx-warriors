@@ -15,6 +15,7 @@ import { PostStatus } from '../enums/post-status';
 import { User } from '../../auth/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
 import { PostLike } from './likes.entity';
+import { Comment } from './comment.entity';
 
 @Entity('posts')
 export class Post {
@@ -86,8 +87,8 @@ export class Post {
   @OneToMany(() => PostLike, (postLike) => postLike.post)
   likes: PostLike[];
 
-  // @OneToMany(() => Comment, (comment) => comment.post)
-  // comments: Comment[];
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
 
   @ApiProperty({
     description: 'Views count',

@@ -9,19 +9,23 @@ import { LikesController } from './likes/likes.controller';
 import { LikesService } from './likes/likes.service';
 import { PostLike } from './entities/likes.entity';
 import { PostViewLog } from './entities/post-view-log.entity';
+import { Comment } from './entities/comment.entity';
 import { PostViewLogCleanupService } from './services/post-view-log-cleanup.service';
+import { CommentsController } from './comments/comments.controller';
+import { CommentsService } from './comments/comments.service';
 
 @Module({
-  controllers: [PostsController, LikesController],
+  controllers: [PostsController, LikesController, CommentsController],
   providers: [
     PostsService,
     HandlerException,
     LikesService,
     PostViewLogCleanupService,
+    CommentsService,
   ],
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([Post, PostLike, PostViewLog]),
+    TypeOrmModule.forFeature([Post, PostLike, PostViewLog, Comment]),
   ],
   exports: [TypeOrmModule],
 })
