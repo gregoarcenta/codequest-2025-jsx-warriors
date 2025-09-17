@@ -67,6 +67,10 @@ export class AuthService {
     if (!user)
       throw new UnauthorizedException('Credentials are not valid (email)');
 
+    if (!user.isActive) {
+      throw new UnauthorizedException('User is inactive, talk with an admin');
+    }
+
     const isValidPassword = await bcrypt.compare(
       signInDto.password,
       user.password,

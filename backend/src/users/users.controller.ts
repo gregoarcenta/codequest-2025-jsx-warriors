@@ -1,10 +1,11 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
+  Post,
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -14,33 +15,56 @@ import { Auth, GetUser } from '../auth/decorators';
 import { User } from './entities/user.entity';
 import { Role } from '../config';
 import { PaginateDto } from '../common/dto/paginate.dto';
+import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
-  }
-
   /* ────────  SOLO AUTH  ──────── */
-  @Patch()
+  @Patch('me')
   @Auth()
   update(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
     return this.usersService.update(user, updateUserDto);
   }
-  /* ────────  ADMIN / BACKOFFICE  ──────── */
 
+  // @Patch('me/password')
+  // @Auth()
+  // updatePassword(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
+  //   // return this.usersService.update(user, updateUserDto);
+  // }
+
+  // @Get('me/bookmarks')
+  // @Auth()
+  // findBookmarks(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
+  //   return this.usersService.update(user, updateUserDto);
+  // }
+
+  // @Post('me/bookmarks')
+  // @Auth()
+  // toggleBookmark(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
+  //   return this.usersService.update(user, updateUserDto);
+  // }
+  /* ────────  ADMIN / BACKOFFICE  ──────── */
   @Get()
   @Auth(Role.ADMIN)
   findAll(@Query() paginateDto: PaginateDto) {
     return this.usersService.findAll(paginateDto);
+  }
+
+  @Get(':id')
+  @Auth(Role.ADMIN)
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.usersService.findOne(id);
+  }
+
+  @Patch(':id')
+  @Auth(Role.ADMIN)
+  updateByAdmin(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserByAdminDto: UpdateUserByAdminDto,
+  ) {
+    return this.usersService.updateByAdmin(id, updateUserByAdminDto);
   }
 }

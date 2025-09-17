@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,6 +7,7 @@ import { User } from './entities/user.entity';
 import { AuthService } from '../auth/auth.service';
 import { userInitialData } from '../data/user.data';
 import { PaginateDto } from '../common/dto/paginate.dto';
+import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -63,8 +64,21 @@ export class UsersService implements OnModuleInit {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    const user = await this.executeQuery(async () => {
+      return await this.usersRepository
+        .createQueryBuilder('user')
+        .loadRelationCountAndMap('user.likesCount', 'user.likes')
+        .loadRelationCountAndMap('user.postsCount', 'user.posts')
+        .where('user.id = :id', { id })
+        .getOne();
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    return user;
   }
 
   async update(user: User, updateUserDto: UpdateUserDto) {
@@ -75,6 +89,20 @@ export class UsersService implements OnModuleInit {
     await this.executeQuery(async () =>
       this.usersRepository.update(user.id, updateUserDto),
     );
+    return { message: `User ${user.fullName} updated successfully` };
+  }
+
+  async updateByAdmin(id: string, updateUserDto: UpdateUserByAdminDto) {
+    if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
+      return { message: 'No changes to apply' };
+    }
+
+    const user = await this.findOne(id);
+
+    await this.executeQuery(async () =>
+      this.usersRepository.update(user.id, updateUserDto),
+    );
+
     return { message: `User ${user.fullName} updated successfully` };
   }
 
