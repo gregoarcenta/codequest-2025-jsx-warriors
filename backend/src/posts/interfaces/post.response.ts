@@ -23,4 +23,7 @@ export class PostResponse extends OmitType(Post, [
 
   @ApiProperty({ description: 'Is user liked', example: 'false' })
   isLiked: boolean;
+
+  @ApiProperty({ description: 'Is user saved', example: 'false' })
+  isSaved: boolean;
 }

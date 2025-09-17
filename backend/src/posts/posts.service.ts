@@ -36,12 +36,21 @@ export class PostsService implements OnModuleInit {
       .leftJoinAndSelect('post.category', 'category');
 
     if (userId) {
-      query.loadRelationCountAndMap(
-        'post.isLiked',
-        'post.likes',
-        'userLike',
-        (qb) => qb.where('userLike.user_id = :userId', { userId }),
-      );
+      query
+        // Para saber si le ha dado like a un post
+        .loadRelationCountAndMap(
+          'post.isLiked',
+          'post.likes',
+          'userLike',
+          (qb) => qb.where('userLike.user_id = :userId', { userId }),
+        )
+        // Para saber si ha guardado un post
+        .loadRelationCountAndMap(
+          'post.isSaved',
+          'post.bookmarks',
+          'userSaved',
+          (qb) => qb.where('userSaved.user_id = :userId', { userId }),
+        );
     }
 
     return query;
@@ -110,12 +119,13 @@ export class PostsService implements OnModuleInit {
   }
 
   private transformPostData(
-    post: Post & { likesCount?: number; isLiked?: number },
+    post: Post & { likesCount?: number; isLiked?: number; isSaved?: number },
   ): PostResponse {
     return {
       ...post,
       likesCount: post.likesCount || 0,
       isLiked: post.isLiked > 0,
+      isSaved: post.isSaved > 0,
       author: {
         id: post.author.id,
         fullName: post.author.fullName,
@@ -172,6 +182,7 @@ export class PostsService implements OnModuleInit {
     const query = this.createBaseQuery(userId);
     const status = PostStatus.PUBLISHED;
 
+    // si options?.onlyPublished es true, buscamos por status publish
     if (options?.onlyPublished) {
       query.where('post.status = :status', { status });
       // .leftJoinAndSelect(
@@ -187,9 +198,12 @@ export class PostsService implements OnModuleInit {
     }
 
     const whereClause = options?.onlyPublished ? 'andWhere' : 'where';
+
+    // Si es un ID, buscamos por ID
     if (isUUID(term)) {
       query[whereClause]('post.id = :term', { term });
     } else {
+      // Si no buscamos por titulo o slug
       query[whereClause]('post.slug = :term OR post.title ILIKE :term', {
         term,
       });
@@ -199,6 +213,7 @@ export class PostsService implements OnModuleInit {
 
     if (!post) throw new NotFoundException(`Post "${term}" not found`);
 
+    // Verificamos si el post ha sido visto por el usuario o por su IP
     const recentView = await this.executeQuery(async () => {
       return await this.postViewLogRepository.findOne({
         where: [
@@ -208,6 +223,7 @@ export class PostsService implements OnModuleInit {
       });
     });
 
+    // Si el post no ha sido visto por el usuario y es un post publicado, lo registramos
     if (options?.onlyPublished && !recentView) {
       await this.executeQuery(async () => {
         await this.postRepository.manager.transaction(async (manager) => {
