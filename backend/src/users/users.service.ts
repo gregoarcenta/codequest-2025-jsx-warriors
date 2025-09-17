@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,6 +13,8 @@ import { AuthService } from '../auth/auth.service';
 import { userInitialData } from '../data/user.data';
 import { PaginateDto } from '../common/dto/paginate.dto';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -81,17 +88,6 @@ export class UsersService implements OnModuleInit {
     return user;
   }
 
-  async update(user: User, updateUserDto: UpdateUserDto) {
-    if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
-      return { message: 'No changes to apply' };
-    }
-
-    await this.executeQuery(async () =>
-      this.usersRepository.update(user.id, updateUserDto),
-    );
-    return { message: `User ${user.fullName} updated successfully` };
-  }
-
   async updateByAdmin(id: string, updateUserDto: UpdateUserByAdminDto) {
     if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
       return { message: 'No changes to apply' };
@@ -106,7 +102,46 @@ export class UsersService implements OnModuleInit {
     return { message: `User ${user.fullName} updated successfully` };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(user: User, updateUserDto: UpdateUserDto) {
+    if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
+      return { message: 'No changes to apply' };
+    }
+
+    await this.executeQuery(async () =>
+      this.usersRepository.update(user.id, updateUserDto),
+    );
+    return { message: `User ${user.fullName} updated successfully` };
+  }
+
+  async updatePassword(user: User, updatePasswordDto: UpdatePasswordDto) {
+    const { oldPassword, newPassword } = updatePasswordDto;
+
+    const userFound = await this.executeQuery(async () => {
+      return this.usersRepository
+        .createQueryBuilder('user')
+        .select('user.password')
+        .where('user.id = :id', { id: user.id })
+        .getOne();
+    });
+
+    const isOldValid = await bcrypt.compare(oldPassword, userFound.password);
+
+    if (!isOldValid) {
+      throw new UnauthorizedException('The old password is not valid');
+    }
+
+    if (newPassword === oldPassword) {
+      throw new UnauthorizedException(
+        'The new password cannot be the same as the old password',
+      );
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+
+    await this.executeQuery(async () => this.usersRepository.save(user));
+
+    return {
+      message: `User ${user.fullName} password updated successfully`,
+    };
   }
 }

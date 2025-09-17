@@ -5,7 +5,6 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
-  Post,
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -16,6 +15,7 @@ import { User } from './entities/user.entity';
 import { Role } from '../config';
 import { PaginateDto } from '../common/dto/paginate.dto';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -23,17 +23,27 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   /* ────────  SOLO AUTH  ──────── */
+
+  // @Get('me/profile')
+  // @Auth()
+  // profile(@GetUser() user: User) {
+  //   return this.usersService.getProfile(user);
+  // }
+
   @Patch('me')
   @Auth()
   update(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
     return this.usersService.update(user, updateUserDto);
   }
 
-  // @Patch('me/password')
-  // @Auth()
-  // updatePassword(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
-  //   // return this.usersService.update(user, updateUserDto);
-  // }
+  @Patch('me/password')
+  @Auth()
+  updatePassword(
+    @Body() updatePasswordDto: UpdatePasswordDto,
+    @GetUser() user: User,
+  ) {
+    return this.usersService.updatePassword(user, updatePasswordDto);
+  }
 
   // @Get('me/bookmarks')
   // @Auth()
