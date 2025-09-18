@@ -1,14 +1,14 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiErrorResponses } from '../api-error-responses.decorator';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
-import { UserResponse } from '../../../auth/interfaces/user-response';
+import { AuthResponse } from '../../../auth/interfaces/auth-response';
 
 export const ApiSignInResponse = () => {
   return applyDecorators(
     ApiOperation({ summary: 'User Login' }),
     ApiOkResponse({
       description: 'User has been successfully login.',
-      type: UserResponse,
+      type: AuthResponse,
     }),
     ApiErrorResponses({
       badRequest: true,

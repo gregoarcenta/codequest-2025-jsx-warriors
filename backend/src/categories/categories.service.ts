@@ -11,6 +11,7 @@ import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { HandlerException } from '../common/exceptions/handler.exception';
 import { categoriesInitialData } from '../data/categories.data';
+import { PostStatus } from '../posts/enums/post-status';
 
 @Injectable()
 export class CategoriesService implements OnModuleInit {
@@ -45,30 +46,36 @@ export class CategoriesService implements OnModuleInit {
     }
   }
 
-  async findAll() {
+  async findAll(options?: { onlyActive?: boolean; onlyFeatured?: boolean }) {
     try {
-      return await this.categoryRepository.find();
-    } catch (err) {
-      this.handlerException.handlerDBException(err);
-    }
-  }
+      const queryBuilder =
+        this.categoryRepository.createQueryBuilder('category');
 
-  async findAllActives() {
-    try {
-      return await this.categoryRepository.findBy({
-        isActive: true,
-      });
-    } catch (err) {
-      this.handlerException.handlerDBException(err);
-    }
-  }
+      if (options?.onlyActive || options?.onlyFeatured) {
+        queryBuilder.loadRelationCountAndMap(
+          'category.postsCount',
+          'category.posts',
+          'post',
+          (qb) =>
+            qb.where('post.status = :isPublished', {
+              isPublished: PostStatus.PUBLISHED,
+            }),
+        );
+      }
 
-  async findAllFeatures() {
-    try {
-      return await this.categoryRepository.findBy({
-        isFeatured: true,
-        isActive: true,
-      });
+      if (options?.onlyActive) {
+        queryBuilder.where('category.is_active = :isActive', {
+          isActive: true,
+        });
+      }
+
+      if (options?.onlyFeatured) {
+        queryBuilder
+          .where('category.is_active = :isActive', { isActive: true })
+          .andWhere('category.is_featured = :isFeatured', { isFeatured: true });
+      }
+
+      return await queryBuilder.getMany();
     } catch (err) {
       this.handlerException.handlerDBException(err);
     }

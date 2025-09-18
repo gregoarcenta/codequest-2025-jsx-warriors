@@ -11,7 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
-import { User } from './entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { Auth, GetUser } from './decorators';
 import { AuthGuard } from '@nestjs/passport';
 import { DiscordUser } from './interfaces/discord-user';
@@ -47,13 +47,6 @@ export class AuthController {
     return this.authService.signIn(signInDto);
   }
 
-  @Get('check-status')
-  @Auth()
-  @ApiCheckStatusResponse()
-  checkStatus(@GetUser() user: User) {
-    return this.authService.checkStatus(user);
-  }
-
   @Get('discord')
   @UseGuards(AuthGuard('discord'))
   @ApiDiscordSignUpResponse()
@@ -77,5 +70,12 @@ export class AuthController {
     });
 
     res.redirect(this.configService.get('FRONTEND_URL'));
+  }
+
+  @Get('check-status')
+  @Auth()
+  @ApiCheckStatusResponse()
+  checkStatus(@GetUser() user: User) {
+    return this.authService.checkStatus(user);
   }
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -11,8 +12,8 @@ import { HandlerException } from '../common/exceptions/handler.exception';
 import { IPayloadJwt } from './strategies/jwt.strategy';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
-import { User } from './entities/user.entity';
-import { UserResponse } from './interfaces/user-response';
+import { User } from '../users/entities/user.entity';
+import { AuthResponse } from './interfaces/auth-response';
 import { DiscordUser } from './interfaces/discord-user';
 
 @Injectable()
@@ -23,7 +24,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signUp(signUpDto: SignUpDto): Promise<UserResponse> {
+  async signUp(signUpDto: SignUpDto): Promise<AuthResponse> {
     const existingUser = await this.usersRepository.findOneBy({
       email: signUpDto.email,
     });
@@ -52,7 +53,7 @@ export class AuthService {
     };
   }
 
-  async signIn(signInDto: SignInDto): Promise<UserResponse> {
+  async signIn(signInDto: SignInDto): Promise<AuthResponse> {
     let user: User;
     try {
       user = await this.usersRepository
@@ -66,6 +67,10 @@ export class AuthService {
 
     if (!user)
       throw new UnauthorizedException('Credentials are not valid (email)');
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('User is inactive, talk with an admin');
+    }
 
     const isValidPassword = await bcrypt.compare(
       signInDto.password,
@@ -83,7 +88,7 @@ export class AuthService {
     };
   }
 
-  async signInWithDiscord(discordUser: DiscordUser): Promise<UserResponse> {
+  async signInWithDiscord(discordUser: DiscordUser): Promise<AuthResponse> {
     const user = await this.findOrCreateUserDiscord(discordUser);
 
     await this.updateLastLogin(user.id);
@@ -93,7 +98,7 @@ export class AuthService {
     return { user, accessToken };
   }
 
-  async checkStatus(user: User): Promise<UserResponse> {
+  async checkStatus(user: User): Promise<AuthResponse> {
     return {
       user,
       accessToken: await this.getJwtToken({ id: user.id }),
@@ -104,7 +109,12 @@ export class AuthService {
     let user: User;
 
     try {
-      user = await this.usersRepository.findOneBy({ id });
+      user = await this.usersRepository
+        .createQueryBuilder('user')
+        .loadRelationCountAndMap('user.likesCount', 'user.likes')
+        .loadRelationCountAndMap('user.postsCount', 'user.posts')
+        .where('user.id = :id', { id })
+        .getOne();
     } catch (err) {
       this.handlerException.handlerDBException(err);
     }
@@ -115,32 +125,44 @@ export class AuthService {
   }
 
   async findOrCreateUserDiscord(discordUser: DiscordUser): Promise<User> {
-    const { id: discordId, email, global_name } = discordUser;
-    const avatarUrl = `https://cdn.discordapp.com/avatars/${discordId}/${discordUser.avatar}.png`;
+    const { id: discordId, email, global_name, avatar } = discordUser;
+
+    if (!discordId) throw new BadRequestException('Discord ID is required');
+
+    const avatarUrl = avatar
+      ? `https://cdn.discordapp.com/avatars/${discordId}/${avatar}.png`
+      : null;
 
     try {
-      // Buscar primero por email
-      const user = await this.usersRepository.findOneBy({ email });
+      // Buscar solo por discordId
+      let user = await this.usersRepository.findOne({ where: { discordId } });
 
-      if (user) {
-        // Si el usuario existe pero no tiene discordId, lo actualizamos
-        if (!user.discordId) {
-          user.discordId = discordId;
-          user.avatarUrl = avatarUrl;
+      // Si no hay cuenta vinculada, opcionalmente busca por email
+      if (!user && email) {
+        const byEmail = await this.usersRepository.findOne({
+          where: { email },
+        });
+        if (byEmail) {
+          // Si existe, vincula ese correo a la cuenta de Discord
+          byEmail.discordId = discordId;
+          user = byEmail;
         }
-
-        return await this.usersRepository.save(user);
       }
 
-      // Crear usuario nuevo
-      return await this.usersRepository.save(
-        this.usersRepository.create({
-          discordId,
-          avatarUrl,
-          fullName: global_name,
-          email,
-        }),
-      );
+      if (user) {
+        user.avatarUrl = avatarUrl ?? user.avatarUrl;
+        user.fullName = global_name ?? user.fullName;
+        return this.usersRepository.save(user);
+      }
+
+      // Crear nuevo usuario
+      const newUser = this.usersRepository.create({
+        discordId,
+        email,
+        fullName: global_name,
+        avatarUrl,
+      });
+      return this.usersRepository.save(newUser);
     } catch (err) {
       this.handlerException.handlerDBException(err);
     }

@@ -1,7 +1,7 @@
-import { User } from '../entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from '../../users/entities/user.entity';
 
-export class UserResponse {
+export class AuthResponse {
   @ApiProperty({ description: 'UserResponse User', type: User })
   user: User;
 
