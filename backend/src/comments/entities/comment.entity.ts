@@ -10,8 +10,9 @@ import {
   Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { Post } from './post.entity';
+import { Post } from '../../posts/entities/post.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { CommentLike } from '../../likes/entities/commentLike.entity';
 
 @Entity('comments')
 export class Comment {
@@ -52,6 +53,9 @@ export class Comment {
   })
   @JoinColumn({ name: 'author_id' })
   author: User;
+
+  @OneToMany(() => CommentLike, (commentLike) => commentLike.comment)
+  likes: CommentLike[];
 
   @Index('idx_comments_parent_id')
   @ManyToOne(() => Comment, (comment) => comment.children, {

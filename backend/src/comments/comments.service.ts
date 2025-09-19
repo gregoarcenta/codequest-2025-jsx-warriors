@@ -5,24 +5,28 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Comment } from './entities/comment.entity';
 import { Repository } from 'typeorm';
-import { PostsService } from '../posts.service';
-import { CreateCommentDto } from '../dto/create-comment.dto';
-import { Comment } from '../entities/comment.entity';
-import { HandlerException } from '../../common/exceptions/handler.exception';
-import { PaginateDto } from '../../common/dto/paginate.dto';
-import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { PostsService } from '../posts/posts.service';
+import { HandlerException } from '../common/exceptions/handler.exception';
+import { PaginateDto } from '../common/dto/paginate.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Injectable()
 export class CommentsService {
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
-    private readonly postService: PostsService,
     private readonly handlerException: HandlerException,
+    private readonly postService: PostsService,
   ) {}
 
-  async findAllPerPost(postId: string, paginateDto: PaginateDto) {
+  async findAllPerPost(
+    postId: string,
+    paginateDto: PaginateDto,
+    userId?: string,
+  ) {
     const { page, limit } = paginateDto;
 
     // 1) Total de comentarios raíz
@@ -57,8 +61,9 @@ export class CommentsService {
     }
 
     // 3) Cargar comentarios raíz + hijos + autores, ya filtrando por los IDs paginados
-    const comments = await this.commentRepository
+    const query = this.commentRepository
       .createQueryBuilder('comment')
+      .loadRelationCountAndMap('comment.likesCount', 'comment.likes')
       .leftJoinAndSelect('comment.author', 'author')
       .leftJoinAndSelect(
         'comment.children',
@@ -66,14 +71,44 @@ export class CommentsService {
         'childComments.is_visible = :isVisible',
         { isVisible: true },
       )
-      .leftJoinAndSelect('childComments.author', 'childCommentAuthor')
+      .loadRelationCountAndMap(
+        'childComments.likesCount',
+        'childComments.likes',
+      )
+      .leftJoinAndSelect('childComments.author', 'childCommentAuthor');
+
+    if (userId) {
+      query
+        // Para saber si le ha dado like a un post
+        .loadRelationCountAndMap(
+          'comment.isLiked',
+          'comment.likes',
+          'commentLike',
+          (qb) => qb.where('commentLike.user_id = :userId', { userId }),
+        )
+        .loadRelationCountAndMap(
+          'childComments.isLiked',
+          'childComments.likes',
+          'childCommentsLike',
+          (qb) => qb.where('childCommentsLike.user_id = :userId', { userId }),
+        );
+    }
+
+    const comments = await query
       .where('comment.id IN (:...rootIds)', { rootIds })
       .orderBy('comment.created_at', 'DESC')
       .addOrderBy('childComments.created_at', 'DESC')
       .getMany();
 
     return {
-      comments,
+      comments: comments.map((comment) => ({
+        ...comment,
+        isLiked: comment['isLiked'] > 0,
+        children: comment.children.map((childComment) => ({
+          ...childComment,
+          isLiked: childComment['isLiked'] > 0,
+        })),
+      })),
       total,
       page,
       limit,

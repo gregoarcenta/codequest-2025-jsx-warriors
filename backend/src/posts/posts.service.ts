@@ -32,6 +32,12 @@ export class PostsService implements OnModuleInit {
     const query = this.postRepository
       .createQueryBuilder('post')
       .loadRelationCountAndMap('post.likesCount', 'post.likes')
+      .loadRelationCountAndMap(
+        'post.commentsCount',
+        'post.comments',
+        'postComments',
+        (qb) => qb.where('postComments.is_visible = true'),
+      )
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.category', 'category');
 

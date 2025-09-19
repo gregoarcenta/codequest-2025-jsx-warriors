@@ -8,10 +8,11 @@ import {
 } from 'typeorm';
 import { Role } from '../../config';
 import { ApiProperty } from '@nestjs/swagger';
-import { PostLike } from '../../posts/entities/likes.entity';
 import { Post } from '../../posts/entities/post.entity';
-import { Comment } from '../../posts/entities/comment.entity';
+import { Comment } from '../../comments/entities/comment.entity';
 import { Bookmark } from './bookmark.entity';
+import { PostLike } from '../../likes/entities/postLike.entity';
+import { CommentLike } from '../../likes/entities/commentLike.entity';
 
 @Entity('users')
 export class User {
@@ -71,6 +72,9 @@ export class User {
 
   @OneToMany(() => PostLike, (postLike) => postLike.user)
   likes: PostLike[];
+
+  @OneToMany(() => CommentLike, (commentLike) => commentLike.user)
+  commentsLikes: CommentLike[];
 
   @OneToMany(() => Bookmark, (bookmark) => bookmark.user)
   bookmarks: Bookmark[];

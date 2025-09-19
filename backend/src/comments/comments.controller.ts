@@ -1,28 +1,32 @@
 import {
-  Body,
   Controller,
   Get,
-  Param,
-  ParseUUIDPipe,
-  Patch,
   Post,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+  ParseUUIDPipe,
   Query,
+  Req,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { CommentsService } from './comments.service';
-import { CreateCommentDto } from '../dto/create-comment.dto';
-import { User } from '../../users/entities/user.entity';
-import { Auth, GetUser } from '../../auth/decorators';
-import { PaginateDto } from '../../common/dto/paginate.dto';
-import { UpdateCommentDto } from '../dto/update-comment.dto';
-import { Role } from '../../config';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import {
   ApiCreateCommentResponse,
   ApiFindAllPerPostResponse,
   ApiFindOneResponse,
-  ApiUpdateResponse,
   ApiToggleVisibilityResponse,
-} from '../../swagger/decorators/comments';
+  ApiUpdateResponse,
+} from '../swagger/decorators/comments';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { PaginateDto } from '../common/dto/paginate.dto';
+import { Auth, GetUser } from '../auth/decorators';
+import { User } from '../users/entities/user.entity';
+import { Role } from '../config';
+import { Request } from 'express';
 
 @ApiTags('Comments')
 @Controller('comments')
@@ -30,12 +34,16 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Get('post/:postId')
+  @ApiBearerAuth()
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiFindAllPerPostResponse()
   findAllPerPost(
     @Param('postId', ParseUUIDPipe) postId: string,
     @Query() paginateDto: PaginateDto,
+    @Req() req: Request,
   ) {
-    return this.commentsService.findAllPerPost(postId, paginateDto);
+    const user = req.user as User;
+    return this.commentsService.findAllPerPost(postId, paginateDto, user?.id);
   }
 
   @Post(':postId')

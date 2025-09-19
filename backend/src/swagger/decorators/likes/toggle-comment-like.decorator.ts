@@ -2,11 +2,11 @@ import { applyDecorators } from '@nestjs/common';
 import { ApiErrorResponses } from '../api-error-responses.decorator';
 import { ApiNoContentResponse, ApiOperation } from '@nestjs/swagger';
 
-export const ApiToggleLikeResponse = () => {
+export const ApiToggleCommentLikeResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Toggle like' }),
+    ApiOperation({ summary: 'Toggle comment like' }),
     ApiNoContentResponse({
-      description: 'Toggle like successfully.',
+      description: 'Toggle post like successfully.',
     }),
     ApiErrorResponses({
       badRequest: true,

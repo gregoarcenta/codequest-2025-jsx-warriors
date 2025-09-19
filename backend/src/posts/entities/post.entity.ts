@@ -14,9 +14,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { PostStatus } from '../enums/post-status';
 import { User } from '../../users/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
-import { PostLike } from './likes.entity';
-import { Comment } from './comment.entity';
+import { Comment } from '../../comments/entities/comment.entity';
 import { Bookmark } from '../../users/entities/bookmark.entity';
+import { PostLike } from '../../likes/entities/postLike.entity';
 
 @Entity('posts')
 export class Post {
