@@ -75,6 +75,11 @@ export class PostsController {
     });
   }
 
+  @Get('related/:postId')
+  findRelated(@Param('postId') postId: string) {
+    return this.postsService.findRelated(postId);
+  }
+
   /* ────────  ADMIN / BACKOFFICE  ──────── */
   @Post()
   @Auth(Role.ADMIN)

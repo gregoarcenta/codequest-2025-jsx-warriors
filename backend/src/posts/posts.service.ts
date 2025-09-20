@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { User } from '../users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,17 +16,13 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { PostViewLog } from './entities/post-view-log.entity';
 
 @Injectable()
-export class PostsService implements OnModuleInit {
+export class PostsService {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
     @InjectRepository(PostViewLog)
     private readonly postViewLogRepository: Repository<PostViewLog>,
     private readonly handlerException: HandlerException,
   ) {}
-
-  onModuleInit() {
-    console.log('inicio del modulo de posts');
-  }
 
   private createBaseQuery(userId?: string): SelectQueryBuilder<Post> {
     const query = this.postRepository
@@ -341,5 +337,65 @@ export class PostsService implements OnModuleInit {
     }
 
     return this.executeQuery(() => this.postRepository.save(post));
+  }
+
+  async findRelated(postId: string): Promise<Post[]> {
+    const MAX_RESULTS = 4;
+    const base = await this.postRepository.findOne({
+      where: { id: postId },
+      relations: ['category', 'author'],
+    });
+
+    if (!base) {
+      return [];
+    }
+
+    const titleWords = base.title
+      .replace(/[^\w\s]/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .join(' '); // No uses '|', plainto_tsquery lo hace por ti
+
+    const query = this.postRepository.createQueryBuilder('post');
+
+    query
+      .leftJoinAndSelect('post.category', 'category')
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoin('post.likes', 'likes');
+
+    query
+      .where('post.id != :id', { id: base.id })
+      .andWhere('post.status = :status', { status: PostStatus.PUBLISHED });
+
+    query.orderBy(
+      `ts_rank(to_tsvector('spanish', post.title || ' ' || post.content), plainto_tsquery('spanish', :tsQuery))`,
+      'DESC',
+    );
+
+    query.addOrderBy(
+      `CASE WHEN post.category.id = :categoryId THEN 1 ELSE 0 END`,
+      'DESC',
+    );
+    query.addOrderBy(
+      `CASE WHEN post.author.id = :authorId THEN 1 ELSE 0 END`,
+      'DESC',
+    );
+
+    query.addOrderBy('COUNT(likes.id)', 'DESC');
+    query.addOrderBy('post.views_count', 'DESC');
+    query.addOrderBy('post.publishedAt', 'DESC');
+
+    query.groupBy('post.id, category.id, author.id');
+
+    query.setParameters({
+      id: base.id,
+      authorId: base.author.id,
+      categoryId: base.category.id,
+      tsQuery: titleWords,
+    });
+
+    query.limit(MAX_RESULTS);
+
+    return query.getMany();
   }
 }

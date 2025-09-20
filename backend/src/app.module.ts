@@ -11,6 +11,8 @@ import typeorm from './config/typeorm.config';
 import { UsersModule } from './users/users.module';
 import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
+import { DatabaseModule } from './database/database.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { LikesModule } from './likes/likes.module';
         configService.get('typeorm'),
     }),
     ScheduleModule.forRoot(),
+    DatabaseModule,
     AuthModule,
     UsersModule,
     CategoriesModule,
@@ -28,6 +31,7 @@ import { LikesModule } from './likes/likes.module';
     CommentsModule,
     LikesModule,
     UploadModule,
+    SeedModule,
   ],
 })
 export class AppModule {}

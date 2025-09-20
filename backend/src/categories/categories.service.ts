@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  OnModuleInit,
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -10,28 +9,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { HandlerException } from '../common/exceptions/handler.exception';
-import { categoriesInitialData } from '../data/categories.data';
 import { PostStatus } from '../posts/enums/post-status';
 
 @Injectable()
-export class CategoriesService implements OnModuleInit {
+export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     private readonly handlerException: HandlerException,
   ) {}
-
-  async onModuleInit() {
-    try {
-      const count = await this.categoryRepository.count();
-      if (count === 0) {
-        await this.categoryRepository.save(categoriesInitialData);
-        console.log('Categorías base creadas');
-      }
-    } catch (err) {
-      this.handlerException.handlerDBException(err);
-    }
-  }
 
   async create(createCategoryDto: CreateCategoryDto) {
     const category = this.categoryRepository.create(createCategoryDto);

@@ -1,7 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -9,8 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HandlerException } from '../common/exceptions/handler.exception';
 import { User } from './entities/user.entity';
-import { AuthService } from '../auth/auth.service';
-import { userInitialData } from '../data/user.data';
 import { PaginateDto } from '../common/dto/paginate.dto';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
@@ -19,25 +16,13 @@ import { Bookmark } from './entities/bookmark.entity';
 import { PostStatus } from '../posts/enums/post-status';
 
 @Injectable()
-export class UsersService implements OnModuleInit {
+export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     @InjectRepository(Bookmark)
     private readonly bookmarksRepository: Repository<Bookmark>,
     private readonly handlerException: HandlerException,
-    private readonly authService: AuthService,
   ) {}
-  async onModuleInit() {
-    try {
-      const count = await this.usersRepository.count();
-      if (count === 0) {
-        const { user } = await this.authService.signUp(userInitialData[0]);
-        console.log(`User ${user.fullName} with ${user.roles[0]} role created`);
-      }
-    } catch (err) {
-      this.handlerException.handlerDBException(err);
-    }
-  }
 
   private async executeQuery<T>(operation: () => Promise<T>): Promise<T> {
     try {
