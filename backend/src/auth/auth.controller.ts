@@ -25,14 +25,17 @@ import {
   ApiDiscordSignUpResponse,
   ApiDiscordCallbackResponse,
 } from '../swagger/decorators/auth';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
+
   constructor(
     private readonly authService: AuthService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   @Post('signup')
   @ApiSignUpResponse()
@@ -50,7 +53,7 @@ export class AuthController {
   @Get('discord')
   @UseGuards(AuthGuard('discord'))
   @ApiDiscordSignUpResponse()
-  async discordSignIn() {}
+  async discordSignIn() { }
 
   @Get('discord/callback')
   @UseGuards(AuthGuard('discord'))
@@ -73,4 +76,17 @@ export class AuthController {
   checkStatus(@GetUser() user: User) {
     return this.authService.checkStatus(user);
   }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  public async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<Object> {
+    return await this.authService.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  public async resetPasswordConfirm(@Body() { token, password }: ResetPasswordDto): Promise<Object> {
+    return await this.authService.resetPasswordConfirm(token, password);
+  }
+
 }

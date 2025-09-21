@@ -31,7 +31,7 @@ import { SeedModule } from './seed/seed.module';
     CommentsModule,
     LikesModule,
     UploadModule,
-    SeedModule,
+    SeedModule
   ],
 })
 export class AppModule {}

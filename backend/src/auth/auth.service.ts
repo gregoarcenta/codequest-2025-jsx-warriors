@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -7,6 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { HandlerException } from '../common/exceptions/handler.exception';
 import { IPayloadJwt } from './strategies/jwt.strategy';
@@ -15,14 +17,21 @@ import { SignInDto } from './dto/sign-in.dto';
 import { User } from '../users/entities/user.entity';
 import { AuthResponse } from './interfaces/auth-response';
 import { DiscordUser } from './interfaces/discord-user';
+import { MailService } from 'src/mail/mail.service';
+import { ConfigService } from '@nestjs/config';
+import { PasswordResetToken } from './entities/password-reset-token.entity';
+import { ResetPasswordPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    @InjectRepository(PasswordResetToken) private readonly passwordResetToken: Repository<PasswordResetToken>,
     private readonly handlerException: HandlerException,
     private readonly jwtService: JwtService,
-  ) {}
+    private readonly configService: ConfigService,
+    private readonly mailService: MailService
+  ) { }
 
   async signUp(signUpDto: SignUpDto): Promise<AuthResponse> {
     const existingUser = await this.usersRepository.findOneBy({
@@ -178,4 +187,92 @@ export class AuthService {
       [userId],
     );
   }
+
+  public async forgotPassword(email: string): Promise<Object> {
+
+    const user = await this.usersRepository.findOne({ where: { email } });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    const jwtId: string = uuidv4();
+
+    const tokenPasswordRecovery = this.jwtService.sign(
+      { id: user.id, email: user.email },
+      {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '15m',
+        jwtid: jwtId
+      },
+    );
+
+    const resetRecord = this.passwordResetToken.create({
+      userId: user.id,
+      jwtId,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+    });
+
+    await this.passwordResetToken.save(resetRecord);
+
+    const linkPasswordRecovery: string = `${process.env.RESET_PASSWORD_URL}?token=${encodeURIComponent(tokenPasswordRecovery)}`;
+
+    const bodyEmailPasswordRecovery = {
+      to: user.email,
+      subject: 'Solicitud de restablecimiento de contraseña',
+      template: 'password-reset-email-link',
+      context: {
+        email: user.email,
+        url: linkPasswordRecovery,
+        appName: this.configService.get<string>('APP_NAME'),
+        supportEmail: this.configService.get<string>('SUPPORT_EMAIL'),
+      }
+    };
+
+    await this.mailService.sendEmail(bodyEmailPasswordRecovery);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: "El enlace para restablecer tu contraseña se ha enviado exitosamente a tu correo electrónico."
+    };
+
+  }
+
+  public async resetPasswordConfirm(token: string, password: string): Promise<Object> {
+
+    let payload: ResetPasswordPayload = null;
+
+    try {
+      payload = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+    } catch (e) {
+      throw new UnauthorizedException('Token inválido o expirado');
+    }
+
+    const record = await this.passwordResetToken.findOne({
+      where: { jwtId: payload.jti, userId: payload.id },
+    });
+
+    if (!record) throw new UnauthorizedException('Token no registrado');
+    if (record.isUsed) throw new BadRequestException('El token ya fue utilizado');
+    if (record.expiresAt < new Date()) throw new BadRequestException('El token ha expirado');
+
+    const user = await this.usersRepository.findOne({ where: { id: payload.id } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    user.password = await bcrypt.hash(password, 10);
+    await this.usersRepository.save(user);
+
+    record.isUsed = true;
+    record.usedAt = new Date();
+    const savedRecord = await this.passwordResetToken.save(record);
+
+    if (!savedRecord) {
+      throw new BadRequestException('No se pudo actualizar el estado del token');
+    }
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'La contraseña se ha restablecido correctamente.',
+    };
+
+  }
+
 }
