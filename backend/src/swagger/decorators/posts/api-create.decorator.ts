@@ -5,7 +5,7 @@ import { PostResponse } from '../../../posts/interfaces/post.response';
 
 export const ApiCreateResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Create new post' }),
+    ApiOperation({ summary: '(Admin) Create new post' }),
     ApiCreatedResponse({
       description: 'Post has been successfully created.',
       type: PostResponse,

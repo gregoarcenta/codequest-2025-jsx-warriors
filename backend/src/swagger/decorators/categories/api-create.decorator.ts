@@ -5,7 +5,7 @@ import { Category } from '../../../categories/entities/category.entity';
 
 export const ApiCreateResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Create new category' }),
+    ApiOperation({ summary: '(Admin) Create new category' }),
     ApiOkResponse({
       description: 'Category has been successfully created.',
       type: Category,

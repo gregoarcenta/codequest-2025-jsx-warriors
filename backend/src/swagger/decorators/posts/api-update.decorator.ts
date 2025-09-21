@@ -5,7 +5,7 @@ import { PostResponse } from '../../../posts/interfaces/post.response';
 
 export const ApiUpdateResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Update post' }),
+    ApiOperation({ summary: '(Admin) Update post' }),
     ApiOkResponse({
       description: 'Update post successfully.',
       type: PostResponse,

@@ -5,7 +5,7 @@ import { PostResponse } from '../../../posts/interfaces/post.response';
 
 export const ApiFindAllResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Get all posts' }),
+    ApiOperation({ summary: '(Admin) Get all posts' }),
     ApiOkResponse({
       description: 'Get all posts successfully',
       type: [PostResponse],

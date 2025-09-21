@@ -4,9 +4,9 @@ import { ApiErrorResponses } from '../api-error-responses.decorator';
 
 export const ApiFindAllResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Get user bookmarks' }),
+    ApiOperation({ summary: '(Admin) Get all users' }),
     ApiOkResponse({
-      description: 'Get user bookmarks successfully.',
+      description: 'Get all user successfully.',
       example: {
         users: [
           {

@@ -4,7 +4,7 @@ import { ApiErrorResponses } from '../api-error-responses.decorator';
 
 export const ApiToggleVisibilityResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Toggle visibility comment' }),
+    ApiOperation({ summary: '(Admin) Toggle visibility comment' }),
     ApiOkResponse({
       description: 'Toggle visibility comment successfully.',
       example: `{

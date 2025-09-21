@@ -29,7 +29,7 @@ export class CommentsService {
   ) {
     const { page, limit } = paginateDto;
 
-    // 1) Total de comentarios raíz
+    // Total de comentarios raíz
     const total = await this.commentRepository
       .createQueryBuilder('c')
       .where('c.post_id = :postId', { postId })
@@ -37,7 +37,7 @@ export class CommentsService {
       .andWhere('c.is_visible = :isVisible', { isVisible: true })
       .getCount();
 
-    // 2) Subquery para paginar solo los IDs raíz
+    // Subquery para paginar solo los IDs raíz
     const idsQb = this.commentRepository
       .createQueryBuilder('c')
       .select('c.id', 'id')
@@ -60,7 +60,7 @@ export class CommentsService {
       };
     }
 
-    // 3) Cargar comentarios raíz + hijos + autores, ya filtrando por los IDs paginados
+    // Cargar comentarios raíz + hijos + autores, ya filtrando por los IDs paginados
     const query = this.commentRepository
       .createQueryBuilder('comment')
       .loadRelationCountAndMap('comment.likesCount', 'comment.likes')

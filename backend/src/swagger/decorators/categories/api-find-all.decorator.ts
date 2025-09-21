@@ -5,7 +5,7 @@ import { Category } from '../../../categories/entities/category.entity';
 
 export const ApiFindAllResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Get all categories' }),
+    ApiOperation({ summary: '(Admin) Get all categories' }),
     ApiOkResponse({
       description: 'Get all categories successfully.',
       type: [Category],

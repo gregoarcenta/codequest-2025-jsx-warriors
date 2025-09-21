@@ -5,7 +5,7 @@ import { ApiErrorResponses } from '../api-error-responses.decorator';
 
 export const ApiFindOneResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Get one category' }),
+    ApiOperation({ summary: '(Admin) Get one category' }),
     ApiOkResponse({
       description: 'Get one category successfully.',
       type: Category,

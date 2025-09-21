@@ -62,14 +62,9 @@ export class AuthController {
     const { accessToken } =
       await this.authService.signInWithDiscord(discordUser);
 
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60,
-    });
+    const route = `${this.configService.get('FRONTEND_URL')}/login?token=${accessToken}`;
 
-    res.redirect(this.configService.get('FRONTEND_URL'));
+    res.redirect(route);
   }
 
   @Get('check-status')

@@ -26,6 +26,7 @@ import {
   ApiDraftPostResponse,
   ApiFindAllFeaturedResponse,
   ApiFindAllPublishedResponse,
+  ApiFindAllRelatedResponse,
   ApiFindAllResponse,
   ApiFindOnePublishedResponse,
   ApiFindOneResponse,
@@ -76,6 +77,7 @@ export class PostsController {
   }
 
   @Get('related/:postId')
+  @ApiFindAllRelatedResponse()
   findRelated(@Param('postId') postId: string) {
     return this.postsService.findRelated(postId);
   }

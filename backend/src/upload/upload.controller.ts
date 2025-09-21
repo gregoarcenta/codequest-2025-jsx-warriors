@@ -26,7 +26,7 @@ export class UploadController {
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({ fileType: 'image/jpeg|jpg|png|gif' })
-        .addMaxSizeValidator({ maxSize: 250000 })
+        .addMaxSizeValidator({ maxSize: 4 * 1024 * 1024 })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )
     file: Express.Multer.File,
@@ -42,7 +42,7 @@ export class UploadController {
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({ fileType: 'image/jpeg|jpg|png|gif' })
-        .addMaxSizeValidator({ maxSize: 250000 })
+        .addMaxSizeValidator({ maxSize: 1024 * 1024 })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )
     file: Express.Multer.File,

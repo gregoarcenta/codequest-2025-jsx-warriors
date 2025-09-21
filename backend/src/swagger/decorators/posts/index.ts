@@ -1,4 +1,5 @@
 export { ApiFindAllFeaturedResponse } from './api-find-all-featured.decorator';
+export { ApiFindAllRelatedResponse } from './api-find-all-related.decorator';
 export { ApiFindAllPublishedResponse } from './api-find-all-published.decorator';
 export { ApiFindOnePublishedResponse } from './api-find-one-published.decorator';
 export { ApiFindOneResponse } from './api-find-one.decorator';

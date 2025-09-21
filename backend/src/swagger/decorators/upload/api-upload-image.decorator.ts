@@ -11,7 +11,7 @@ import { UploadImageResponse } from '../../../upload/interfaces/upload-image.res
 
 export const ApiUploadImageResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Upload image to cloudinary.' }),
+    ApiOperation({ summary: '(Admin) Upload image to cloudinary.' }),
     ApiCreatedResponse({
       description: 'The image was successfully uploaded to the server.',
       type: UploadImageResponse,

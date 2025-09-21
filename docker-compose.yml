@@ -9,7 +9,6 @@ services:
     volumes:
       - ./backend/postgres:/var/lib/postgresql/data
 
-
   backend:
     build:
       context: ./backend
@@ -24,5 +23,5 @@ services:
     profiles: [ frontend ]
     depends_on:
       - postgres
-  #docker compose --profile frontend up -d --build
   #docker compose --profile backend up -d
+  #docker compose --profile frontend up -d --build

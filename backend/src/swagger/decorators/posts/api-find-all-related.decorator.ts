@@ -1,19 +1,17 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ApiErrorResponses } from '../api-error-responses.decorator';
+import { PostResponse } from '../../../posts/interfaces/post.response';
 
-export const ApiUpdateByAdminResponse = () => {
+export const ApiFindAllRelatedResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: '(Admin) Update user' }),
+    ApiOperation({ summary: 'Get all related posts' }),
     ApiOkResponse({
-      description: 'Update user successfully.',
-      example: { message: `User Alex updated successfully` },
+      description: 'Get all related posts successfully',
+      type: [PostResponse],
     }),
     ApiErrorResponses({
       badRequest: true,
-      notFound: true,
-      forbidden: true,
-      unauthorized: true,
       internalServerError: true,
     }),
   );

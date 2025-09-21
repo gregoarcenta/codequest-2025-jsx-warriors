@@ -4,7 +4,7 @@ import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 
 export const ApiToggleStatusResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Update category status' }),
+    ApiOperation({ summary: '(Admin) Update category status' }),
     ApiOkResponse({
       description: 'Update category status successfully.',
       example: {

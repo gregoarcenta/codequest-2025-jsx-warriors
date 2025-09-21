@@ -4,9 +4,9 @@ import { ApiErrorResponses } from '../api-error-responses.decorator';
 
 export const ApiFindOneResponse = () => {
   return applyDecorators(
-    ApiOperation({ summary: 'Get user bookmarks' }),
+    ApiOperation({ summary: '(Admin) Get one user' }),
     ApiOkResponse({
-      description: 'Get user bookmarks successfully.',
+      description: 'Get one user successfully.',
       example: {
         id: 'a4426a88-4b04-45f0-86c4-f62bb2e2bdd1',
         discordId: null,
