@@ -91,7 +91,7 @@ export class UsersService {
       this.usersRepository.update(user.id, updateUserDto),
     );
 
-    return { message: `User ${user.fullName} updated successfully` };
+    return this.findOne(user.id);
   }
 
   async update(user: User, updateUserDto: UpdateUserDto) {
@@ -102,7 +102,7 @@ export class UsersService {
     await this.executeQuery(async () =>
       this.usersRepository.update(user.id, updateUserDto),
     );
-    return { message: `User ${user.fullName} updated successfully` };
+    return this.findOne(user.id);
   }
 
   async createUserByAdmin(createUserDto: CreateUserDto) {
