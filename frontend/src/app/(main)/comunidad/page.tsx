@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -11,13 +9,18 @@ import {
   Star,
   Users,
 } from "lucide-react";
+import { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Comunidad",
+};
 
 const socialLinks = [
   {
     name: "YouTube",
     description: "Tutoriales completos de programación y desarrollo web",
-    followers: "1.2M suscriptores",
+    followers: "2.18k suscriptores",
     color: "from-red-500 to-red-500",
     hoverColor: "hover:from-red-500 hover:to-red-600",
     url: "https://youtube.com/@devtalles",
@@ -30,7 +33,7 @@ const socialLinks = [
   {
     name: "TikTok",
     description: "Videos cortos y tips rápidos de desarrollo",
-    followers: "300K seguidores",
+    followers: "2.5K seguidores",
     color: "from-black to-black",
     hoverColor: "hover:from-gray-800 hover:to-black",
     url: "https://www.tiktok.com/@devtallescorp",
@@ -43,7 +46,7 @@ const socialLinks = [
   {
     name: "X (Twitter)",
     description: "Noticias, tips rápidos y actualizaciones del mundo tech",
-    followers: "180K seguidores",
+    followers: "14.5K seguidores",
     color: "from-slate-700 to-slate-800",
     hoverColor: "hover:from-slate-800 hover:to-slate-900",
     url: "https://x.com/devtalles",
@@ -56,7 +59,7 @@ const socialLinks = [
   {
     name: "LinkedIn",
     description: "Contenido profesional y oportunidades de networking",
-    followers: "95K seguidores",
+    followers: "30K seguidores",
     color: "from-blue-600 to-blue-600",
     hoverColor: "hover:from-blue-600 hover:to-blue-700",
     url: "https://linkedin.com/company/devtalles",
@@ -69,7 +72,7 @@ const socialLinks = [
   {
     name: "Facebook",
     description: "Comunidad activa con eventos y actualizaciones",
-    followers: "75K seguidores",
+    followers: "287 seguidores",
     color: "from-blue-500 to-blue-500",
     hoverColor: "hover:from-blue-500 hover:to-blue-600",
     url: "https://facebook.com/DevTallesCorp",
@@ -82,7 +85,7 @@ const socialLinks = [
   {
     name: "Discord",
     description: "Chat en tiempo real con la comunidad de desarrolladores",
-    followers: "45K miembros",
+    followers: "50K miembros",
     color: "from-indigo-500 to-purple-600",
     hoverColor: "hover:from-indigo-600 hover:to-purple-700",
     url: "https://discord.gg/pBjEVYTC7t",
@@ -123,8 +126,8 @@ const socialLinks = [
 const coursesPlatform = {
   name: "Cursos DevTalles",
   description: "Plataforma oficial con cursos premium de desarrollo web",
-  students: "150K+ estudiantes",
-  courses: "50+ cursos disponibles",
+  students: "10K+ estudiantes",
+  courses: "30+ cursos disponibles",
   color: "from-purple-600 to-pink-600",
   hoverColor: "hover:from-purple-700 hover:to-pink-700",
   url: "https://cursos.devtalles.com",
@@ -135,19 +138,19 @@ const communityStats = [
   {
     icon: <Users className="w-6 h-6" />,
     label: "Desarrolladores Activos",
-    value: "250K+",
+    value: "10K+",
     color: "text-blue-600 dark:text-blue-400",
   },
   {
     icon: <MessageSquare className="w-6 h-6" />,
     label: "Mensajes por Día",
-    value: "5K+",
+    value: "1K+",
     color: "text-green-600 dark:text-green-400",
   },
   {
     icon: <Calendar className="w-6 h-6" />,
     label: "Eventos Mensuales",
-    value: "12+",
+    value: "5+",
     color: "text-purple-600 dark:text-purple-400",
   },
   {
@@ -191,8 +194,8 @@ export default function ComunidadPage() {
             </h1>
 
             <p className="text-xl md:text-2xl text-slate-300 leading-relaxed max-w-3xl mx-auto mb-8">
-              Conecta con más de 250,000 desarrolladores, comparte conocimiento
-              y crece profesionalmente en el ecosistema DevTalles
+              Conecta con más de 10,000 desarrolladores, comparte conocimiento y
+              crece profesionalmente en el ecosistema DevTalles
             </p>
 
             {/* Community Stats */}

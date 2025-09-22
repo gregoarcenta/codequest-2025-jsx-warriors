@@ -15,6 +15,12 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
+import dayjs from "@/lib/dayjs";
+
+export const metadata: Metadata = {
+  title: "Políticas de Privacidad",
+};
 
 export default function PoliticaPrivacidadPage() {
   return (
@@ -67,7 +73,7 @@ export default function PoliticaPrivacidadPage() {
                           Última actualización
                         </p>
                         <p className="text-sm text-green-700 dark:text-green-300">
-                          12 de septiembre de 2025
+                          {dayjs().format("D [de] MMMM [de] YYYY")}
                         </p>
                       </div>
                     </div>

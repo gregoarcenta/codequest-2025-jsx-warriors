@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Raleway } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const raleway = Raleway({
@@ -20,7 +21,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Inicio | DevTalles - Blog",
+    default: "DevTalles - Blog",
     template: "%s | DevTalles - Blog",
   },
   description:
@@ -52,6 +53,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster expand={false} closeButton richColors />
         </ThemeProvider>
       </body>
     </html>

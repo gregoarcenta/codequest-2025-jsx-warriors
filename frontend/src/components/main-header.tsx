@@ -16,27 +16,112 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { ToggleTheme } from "@/components/toggle-theme";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuthStore } from "@/stores/auth-store";
+import api from "@/lib/axios";
+import dayjs from "dayjs";
 import {
+  ChevronDown,
   Grid2x2,
   HomeIcon,
+  LogOut,
   Menu,
   Rss,
   Search,
   User,
+  User2,
   Users,
 } from "lucide-react";
+
+interface ApiCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  color: string;
+  featured: boolean;
+  status: string;
+  postsCount: number;
+}
 
 export default function MainHeader() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const isMobile = useIsMobile();
+  const router = useRouter();
+
+  // Zustand auth store
+  const { isAuthenticated, user, logout } = useAuthStore();
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await api.get("/categories/features");
+        const cats = response.data?.categories || response.data || [];
+        setCategories(cats.slice(0, 5)); // Limit to 5 categories
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const handleLogout = () => {
+    // Eliminar usuario y token del store
+    logout();
+    // Redirigir a la página de inicio
+    router.push("/");
+  };
+
+  const getUserInitials = () => {
+    if (!user?.fullName) return "U";
+    return user.fullName
+      .split(" ")
+      .map((name) => name.charAt(0))
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Handle search functionality
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      router.push(`/articulos?title=${encodeURIComponent(searchTerm.trim())}`);
+      setIsSearchOpen(false);
+      setSearchTerm("");
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   // Abrir sidebar automáticamente en móvil
   useEffect(() => {
@@ -71,37 +156,13 @@ export default function MainHeader() {
       title: "Categorías",
       href: "#",
       icon: <Grid2x2 className="h-4 w-4 text-white" />,
-      children: [
-        {
-          title: "Frontend",
-          href: { pathname: "/articulos", query: { categoria: "frontend" } },
-          description: "React, Vue, Angular y más tecnologías frontend",
-        },
-        {
-          title: "Backend",
-          href: { pathname: "/articulos", query: { categoria: "backend" } },
-          description: "Node.js, Python, .NET y tecnologías de servidor",
-        },
-        {
-          title: "Mobile",
-          href: { pathname: "/articulos", query: { categoria: "mobile" } },
-          description: "React Native, Flutter y desarrollo móvil",
-        },
-        {
-          title: "DevOps",
-          href: { pathname: "/articulos", query: { categoria: "devops" } },
-          description: "CI/CD, Docker, Kubernetes y más",
-        },
-        {
-          title: "Inteligencia Artificial",
-          href: {
-            pathname: "/articulos",
-            query: { categoria: "inteligencia-artificial" },
-          },
-          description:
-            "Inteligencia Artificial y Machine Learning usando python",
-        },
-      ],
+      children: categories.map((category) => ({
+        title: category.name,
+        href: { pathname: "/articulos", query: { categoryId: category.id } },
+        description:
+          category.description ||
+          `${category.postsCount} artículos disponibles`,
+      })),
     },
     {
       title: "Comunidad",
@@ -194,10 +255,24 @@ export default function MainHeader() {
                   <Input
                     type="search"
                     placeholder="Buscar artículos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
                     className="w-64 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 focus:border-purple-300"
                     autoFocus
-                    onBlur={() => setIsSearchOpen(false)}
+                    onBlur={() => {
+                      // Delay to allow search button click
+                      setTimeout(() => setIsSearchOpen(false), 150);
+                    }}
                   />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSearch}
+                    className="text-white hover:text-purple-300 hover:bg-purple-600/30"
+                  >
+                    <Search className="h-4 w-4" />
+                  </Button>
                 </div>
               ) : (
                 <Button
@@ -213,24 +288,78 @@ export default function MainHeader() {
 
             {/* Auth Buttons - Solo en desktop */}
             <div className="hidden lg:flex items-center space-x-2">
-              <Link href="/login">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:text-purple-300 hover:bg-purple-600/30"
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Iniciar Sesión
-                </Button>
-              </Link>
-              <Link href="/registro">
-                <Button
-                  size="sm"
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
-                >
-                  Únete
-                </Button>
-              </Link>
+              {isAuthenticated && user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="flex items-center gap-2 h-auto p-2 text-white hover:text-purple-300 hover:bg-purple-600/30 transition-colors duration-200"
+                    >
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={user.avatarUrl} alt={user.fullName} />
+                        <AvatarFallback className="bg-purple-600 text-white text-sm font-medium">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="hidden xl:flex flex-col items-start">
+                        <span className="text-sm font-medium">
+                          {user.fullName}
+                        </span>
+                        <span className="text-xs text-purple-200">
+                          {user.email}
+                        </span>
+                      </div>
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-purple-200/30 dark:border-purple-700/50 shadow-lg dark:shadow-purple-900/20"
+                  >
+                    <DropdownMenuLabel className="font-medium text-gray-900 dark:text-gray-100">
+                      Mi cuenta
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-purple-200/30 dark:bg-purple-700/50" />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/perfil"
+                        className="flex items-center gap-2 w-full cursor-pointer text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-purple-900/30"
+                      >
+                        <User2 className="w-4 h-4" />
+                        Mi Perfil
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full cursor-pointer text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50/50 dark:hover:bg-red-900/30"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Cerrar Sesión
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-white hover:text-purple-300 hover:bg-purple-600/30"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Iniciar Sesión
+                    </Button>
+                  </Link>
+                  <Link href="/registro">
+                    <Button
+                      size="sm"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
+                    >
+                      Únete
+                    </Button>
+                  </Link>
+                </>
+              )}
               <ToggleTheme />
             </div>
 
@@ -281,6 +410,33 @@ export default function MainHeader() {
 
                   {/* Content del Sidebar */}
                   <div className="flex-1 p-6 overflow-y-auto">
+                    {/* Búsqueda en móvil */}
+                    <div className="mb-6">
+                      <h3 className="text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs font-semibold mb-3">
+                        Buscar
+                      </h3>
+                      <div className="flex gap-2">
+                        <Input
+                          type="search"
+                          placeholder="Buscar artículos..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          onKeyDown={handleSearchKeyDown}
+                          className="flex-1"
+                        />
+                        <Button
+                          size="icon"
+                          onClick={() => {
+                            handleSearch();
+                            setIsSidebarOpen(false);
+                          }}
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          <Search className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
                     {/* Navegación Principal */}
                     <div className="mb-6">
                       <h3 className="text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs font-semibold mb-3">
@@ -336,33 +492,89 @@ export default function MainHeader() {
 
                       {/* Auth Buttons */}
                       <div className="space-y-2">
-                        <Link
-                          href="/login"
-                          className="block"
-                          onClick={() => setIsSidebarOpen(false)}
-                        >
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400"
-                          >
-                            <User className="h-4 w-4 mr-2" />
-                            Iniciar Sesión
-                          </Button>
-                        </Link>
-                        <Link
-                          href="/registro"
-                          className="block"
-                          onClick={() => setIsSidebarOpen(false)}
-                        >
-                          <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
-                            Únete
-                          </Button>
-                        </Link>
+                        {isAuthenticated && user ? (
+                          <>
+                            {/* User Profile Section */}
+                            <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700">
+                              <div className="flex items-center space-x-3">
+                                <Avatar className="w-10 h-10">
+                                  <AvatarImage
+                                    src={user.avatarUrl}
+                                    alt={user.fullName}
+                                  />
+                                  <AvatarFallback className="bg-purple-600 text-white">
+                                    {getUserInitials()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                                    {user.fullName}
+                                  </p>
+                                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                    {user.email}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Profile Actions */}
+                            <Link
+                              href="/perfil"
+                              className="block"
+                              onClick={() => setIsSidebarOpen(false)}
+                            >
+                              <Button
+                                variant="outline"
+                                className="w-full justify-start border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400"
+                              >
+                                <User2 className="h-4 w-4 mr-2" />
+                                Mi Perfil
+                              </Button>
+                            </Link>
+
+                            <Button
+                              onClick={() => {
+                                handleLogout();
+                                setIsSidebarOpen(false);
+                              }}
+                              variant="outline"
+                              className="w-full justify-start border-red-200 dark:border-red-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300"
+                            >
+                              <LogOut className="h-4 w-4 mr-2" />
+                              Cerrar Sesión
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              href="/login"
+                              className="block"
+                              onClick={() => setIsSidebarOpen(false)}
+                            >
+                              <Button
+                                variant="outline"
+                                className="w-full justify-start border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400"
+                              >
+                                <User className="h-4 w-4 mr-2" />
+                                Iniciar Sesión
+                              </Button>
+                            </Link>
+                            <Link
+                              href="/registro"
+                              className="block"
+                              onClick={() => setIsSidebarOpen(false)}
+                            >
+                              <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
+                                Únete
+                              </Button>
+                            </Link>
+                          </>
+                        )}
                       </div>
 
                       {/* Footer info */}
                       <div className="text-center text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-600">
-                        © 2025 DevTalles Blog
+                        © {dayjs().format("YYYY")} DevTalles Blog
                       </div>
                     </div>
                   </div>
