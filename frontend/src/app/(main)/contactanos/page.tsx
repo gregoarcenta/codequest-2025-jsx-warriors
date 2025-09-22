@@ -1,9 +1,11 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Clock, Mail, MapPin, Phone, Send } from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { Metadata } from "next";
+import ContactForm from "@/components/contact/contact-form";
+
+export const metadata: Metadata = {
+  title: "Contáctanos",
+};
 
 export default function ContactoPage() {
   return (
@@ -38,126 +40,7 @@ export default function ContactoPage() {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
               {/* Contact Form */}
               <div className="lg:col-span-3">
-                <Card className="border border-white/20 dark:border-slate-700 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
-                  <CardContent className="p-8 md:p-12">
-                    <div className="mb-8">
-                      <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">
-                        Envíanos un mensaje
-                      </h2>
-                      <p className="text-slate-600 dark:text-slate-300">
-                        Completa el formulario y nos pondremos en contacto
-                        contigo en menos de 24 horas.
-                      </p>
-                    </div>
-
-                    <form className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label
-                            htmlFor="nombre"
-                            className="text-slate-700 dark:text-slate-300 font-medium"
-                          >
-                            Nombre completo *
-                          </Label>
-                          <Input
-                            id="nombre"
-                            placeholder="Tu nombre completo"
-                            className="h-12 border-slate-300 dark:border-slate-600 focus:border-purple-500 focus:ring-purple-500"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label
-                            htmlFor="email"
-                            className="text-slate-700 dark:text-slate-300 font-medium"
-                          >
-                            Email *
-                          </Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="tu@email.com"
-                            className="h-12 border-slate-300 dark:border-slate-600 focus:border-purple-500 focus:ring-purple-500"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label
-                            htmlFor="empresa"
-                            className="text-slate-700 dark:text-slate-300 font-medium"
-                          >
-                            Empresa / Organización
-                          </Label>
-                          <Input
-                            id="empresa"
-                            placeholder="Nombre de tu empresa"
-                            className="h-12 border-slate-300 dark:border-slate-600 focus:border-purple-500 focus:ring-purple-500"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label
-                            htmlFor="telefono"
-                            className="text-slate-700 dark:text-slate-300 font-medium"
-                          >
-                            Teléfono
-                          </Label>
-                          <Input
-                            id="telefono"
-                            placeholder="+1 (555) 123-4567"
-                            className="h-12 border-slate-300 dark:border-slate-600 focus:border-purple-500 focus:ring-purple-500"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="asunto"
-                          className="text-slate-700 dark:text-slate-300 font-medium"
-                        >
-                          Asunto *
-                        </Label>
-                        <Input
-                          id="asunto"
-                          placeholder="¿De qué quieres hablarnos?"
-                          className="h-12 border-slate-300 dark:border-slate-600 focus:border-purple-500 focus:ring-purple-500"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="mensaje"
-                          className="text-slate-700 dark:text-slate-300 font-medium"
-                        >
-                          Mensaje *
-                        </Label>
-                        <Textarea
-                          id="mensaje"
-                          placeholder="Cuéntanos más detalles sobre tu consulta o propuesta..."
-                          rows={6}
-                          className="resize-none border-slate-300 dark:border-slate-600 focus:border-purple-500 focus:ring-purple-500"
-                        />
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                        <Button
-                          type="submit"
-                          className="bg-purple-600 hover:bg-purple-700 text-white h-12 px-8 flex-1 sm:flex-initial"
-                        >
-                          <Send className="h-4 w-4 mr-2" />
-                          Enviar mensaje
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="h-12 px-8 border-slate-300 dark:border-slate-600"
-                        >
-                          Limpiar formulario
-                        </Button>
-                      </div>
-                    </form>
-                  </CardContent>
-                </Card>
+                <ContactForm />
               </div>
 
               {/* Contact Info */}

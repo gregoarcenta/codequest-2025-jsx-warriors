@@ -1,17 +1,17 @@
+"use client";
+
 import {
-  AudioWaveform,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
+  LayoutDashboard,
+  Users,
+  Folder,
+  FileText,
+  User,
+  Settings,
 } from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/dashboard/nav-main";
 import { NavUser } from "@/components/dashboard/nav-user";
-import { TeamSwitcher } from "@/components/dashboard/team-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -19,86 +19,66 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  navMain: [
-    /*   {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    }, */
-    {
-      title: "Inicio",
-      url: "/dashboard",
-      icon: Bot,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-};
+import { useAuthStore } from "@/stores/auth-store";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useAuthStore();
+
+  const data = {
+    user: {
+      name: user?.fullName || "Admin",
+      email: user?.email || "admin@example.com",
+      avatar: user?.avatarUrl || "/avatars/default.jpg",
+    },
+    teams: [
+      {
+        name: "DevTalles Blog",
+        logo: LayoutDashboard,
+        plan: "Admin Panel",
+      },
+    ],
+    navMain: [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: LayoutDashboard,
+        isActive: true,
+      },
+      {
+        title: "Gestión",
+        url: "#",
+        icon: Settings,
+        items: [
+          {
+            title: "Usuarios",
+            url: "/dashboard/usuarios",
+            icon: Users,
+          },
+          {
+            title: "Categorías",
+            url: "/dashboard/categorias",
+            icon: Folder,
+          },
+          {
+            title: "Artículos",
+            url: "/dashboard/articulos",
+            icon: FileText,
+          },
+        ],
+      },
+      {
+        title: "Mi Perfil",
+        url: "/dashboard/mi-perfil",
+        icon: User,
+      },
+    ],
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
+      <SidebarHeader></SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        {/*  <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

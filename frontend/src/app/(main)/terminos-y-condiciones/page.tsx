@@ -7,7 +7,13 @@ import {
   Mail,
   MessageSquare,
 } from "lucide-react";
+import dayjs from "@/lib/dayjs";
+import { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Términos y Condiciones",
+};
 
 export default function TerminosCondicionesPage() {
   return (
@@ -59,7 +65,7 @@ export default function TerminosCondicionesPage() {
                           Última actualización
                         </p>
                         <p className="text-sm text-blue-700 dark:text-blue-300">
-                          12 de septiembre de 2025
+                          {dayjs().format("D [de] MMMM [de] YYYY")}
                         </p>
                       </div>
                     </div>

@@ -11,12 +11,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function MainFooter() {
-  interface Category {
-    title: string;
-    href: string;
-    description: string;
-  }
-
   return (
     <footer className="bg-slate-900 text-white">
       {/* Main Footer */}

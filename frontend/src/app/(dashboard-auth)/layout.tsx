@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import dayjs from "@/lib/dayjs";
 
 export default function DashboardAuthLayout({
   children,
@@ -132,8 +133,8 @@ export default function DashboardAuthLayout({
           {/* Bottom Section - Copyright */}
           <div className="relative z-10">
             <p className="text-purple-300 text-xs">
-              © 2025 DevTalles - Plataforma de gestión. Todos los derechos
-              reservados.
+              © {dayjs().format("YYYY")} DevTalles - Plataforma de gestión.
+              Todos los derechos reservados.
             </p>
           </div>
         </div>
