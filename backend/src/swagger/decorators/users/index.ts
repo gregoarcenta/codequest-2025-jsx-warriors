@@ -5,3 +5,4 @@ export { ApiToggleBookmarkResponse } from './api-toggle-bookmark.decorator';
 export { ApiFindAllResponse } from './api-find-all.decorator';
 export { ApiFindOneResponse } from './api-find-one.decorator';
 export { ApiUpdateByAdminResponse } from './api-update-by-admin.decorator';
+export { ApiCreateByAdminResponse } from './api-create-by-admin.decorator';

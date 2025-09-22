@@ -19,7 +19,8 @@ import { PasswordResetToken } from './entities/password-reset-token.entity';
     TypeOrmModule.forFeature([User, PasswordResetToken]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({ useClass: JwtConfigService, global: true }),
-    MailModule],
-  exports: [TypeOrmModule, PassportModule, AuthService,],
+    MailModule,
+  ],
+  exports: [TypeOrmModule, PassportModule, AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}

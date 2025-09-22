@@ -17,6 +17,7 @@ import { Role } from '../config';
 import { PaginateDto } from '../common/dto/paginate.dto';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import {
   ApiToggleBookmarkResponse,
   ApiUpdatePasswordResponse,
@@ -25,12 +26,13 @@ import {
   ApiFindAllResponse,
   ApiFindOneResponse,
   ApiUpdateByAdminResponse,
+  ApiCreateByAdminResponse,
 } from '../swagger/decorators/users';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   /* ────────  SOLO AUTH  ──────── */
 
@@ -75,6 +77,13 @@ export class UsersController {
   }
 
   /* ────────  ADMIN / BACKOFFICE  ──────── */
+
+  @Post()
+  @Auth(Role.ADMIN)
+  @ApiCreateByAdminResponse()
+  createUserByAdmin(@Body() createUseDto: CreateUserDto) {
+    return this.usersService.createUserByAdmin(createUseDto);
+  }
   @Get()
   @Auth(Role.ADMIN)
   @ApiFindAllResponse()

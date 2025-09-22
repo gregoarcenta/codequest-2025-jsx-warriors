@@ -14,6 +14,8 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import * as bcrypt from 'bcrypt';
 import { Bookmark } from './entities/bookmark.entity';
 import { PostStatus } from '../posts/enums/post-status';
+import { CreateUserDto } from './dto/create-user.dto';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
@@ -22,6 +24,7 @@ export class UsersService {
     @InjectRepository(Bookmark)
     private readonly bookmarksRepository: Repository<Bookmark>,
     private readonly handlerException: HandlerException,
+    private readonly authService: AuthService,
   ) {}
 
   private async executeQuery<T>(operation: () => Promise<T>): Promise<T> {
@@ -100,6 +103,10 @@ export class UsersService {
       this.usersRepository.update(user.id, updateUserDto),
     );
     return { message: `User ${user.fullName} updated successfully` };
+  }
+
+  async createUserByAdmin(createUserDto: CreateUserDto) {
+    return this.authService.signUp(createUserDto);
   }
 
   async updatePassword(user: User, updatePasswordDto: UpdatePasswordDto) {
