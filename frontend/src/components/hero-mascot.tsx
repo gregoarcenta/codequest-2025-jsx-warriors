@@ -1,5 +1,6 @@
 "use client";
 
+import { Laptop, Star } from "lucide-react";
 import Image from "next/image";
 
 interface HeroMascotProps {
@@ -29,6 +30,8 @@ export default function HeroMascot({ className = "" }: HeroMascotProps) {
             src="/DEVI-HELLO-BORDER.png"
             alt="DevTalles Mascota"
             fill
+            sizes="(max-width: 768px) 360px, 400px"
+            priority={true}
             className="object-contain drop-shadow-2xl"
           />
 
@@ -44,13 +47,13 @@ export default function HeroMascot({ className = "" }: HeroMascotProps) {
           className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-lg animate-bounce shadow-xl hover:animate-spin transition-all duration-500"
           style={{ animationDuration: "3s" }}
         >
-          ✨
+          <Star />
         </div>
         <div
-          className="absolute -bottom-8 -left-8 w-6 h-6 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full flex items-center justify-center text-sm animate-bounce shadow-xl hover:scale-110 transition-all duration-500"
+          className="absolute -bottom-8 -left-8 w-8 h-8 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full flex items-center justify-center text-sm animate-bounce shadow-xl hover:scale-110 transition-all duration-500"
           style={{ animationDuration: "3.2s", animationDelay: "0.5s" }}
         >
-          💻
+          <Laptop />
         </div>
 
         {/* Floating particles with staggered animations */}

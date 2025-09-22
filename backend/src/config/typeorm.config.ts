@@ -1,25 +1,25 @@
-import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
-import { ConfigService } from '@nestjs/config';
-import { Injectable } from '@nestjs/common';
+import { registerAs } from '@nestjs/config';
+import { config as dotenvConfig } from 'dotenv';
+import { DataSource, DataSourceOptions } from 'typeorm';
 
-@Injectable()
-export class TypeOrmConfigService implements TypeOrmOptionsFactory {
-  constructor(private readonly configService: ConfigService) {}
+dotenvConfig({ path: '.env' });
 
-  createTypeOrmOptions(): TypeOrmModuleOptions {
-    const isProduction = this.configService.get('NODE_ENV') === 'production';
+const isProduction = process.env.NODE_ENV === 'production';
 
-    return {
-      type: 'postgres',
-      host: this.configService.get('DB_HOST'),
-      port: this.configService.get('DB_PORT'),
-      username: this.configService.get('POSTGRES_USER'),
-      password: this.configService.get('POSTGRES_PASSWORD'),
-      database: this.configService.get('POSTGRES_DB'),
-      entities: ['dist/**/*.entity.js'],
-      synchronize: !isProduction,
-      ssl: isProduction,
-      extra: isProduction ? { rejectUnauthorized: false } : null,
-    };
-  }
-}
+const config = {
+  type: 'postgres',
+  host: `${process.env.DB_HOST}`,
+  port: `${process.env.DB_PORT}`,
+  username: `${process.env.POSTGRES_USER}`,
+  password: `${process.env.POSTGRES_PASSWORD}`,
+  database: `${process.env.POSTGRES_DB}`,
+  entities: ['dist/**/*.entity{.ts,.js}'],
+  migrations: ['dist/migrations/*{.ts,.js}'],
+  autoLoadEntities: true,
+  synchronize: !isProduction,
+  ssl: isProduction,
+  extra: isProduction ? { rejectUnauthorized: false } : null,
+};
+
+export default registerAs('typeorm', () => config);
+export const connectionSource = new DataSource(config as DataSourceOptions);

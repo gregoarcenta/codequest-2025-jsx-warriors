@@ -11,20 +11,24 @@ import {
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
-import { User } from './entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { Auth, GetUser } from './decorators';
+import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { ApiTags } from '@nestjs/swagger';
 import {
   ApiCheckStatusResponse,
   ApiSignInResponse,
   ApiSignUpResponse,
+  ApiDiscordSignUpResponse,
+  ApiDiscordCallbackResponse,
+  ApiForgotPasswordResponse,
+  ApiResetPasswordResponse,
 } from '../swagger/decorators/auth';
-import { AuthGuard } from '@nestjs/passport';
-import { DiscordUser } from './interfaces/discord-user';
-import { Response } from 'express';
-import { ConfigService } from '@nestjs/config';
-import { ApiDiscordSignUpResponse } from '../swagger/decorators/auth/api-discord-signin.decorator';
-import { ApiDiscordCallbackResponse } from '../swagger/decorators/auth/api-discord-callback.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { DiscordUser } from './interfaces';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -47,13 +51,6 @@ export class AuthController {
     return this.authService.signIn(signInDto);
   }
 
-  @Get('check-status')
-  @Auth()
-  @ApiCheckStatusResponse()
-  checkStatus(@GetUser() user: User) {
-    return this.authService.checkStatus(user);
-  }
-
   @Get('discord')
   @UseGuards(AuthGuard('discord'))
   @ApiDiscordSignUpResponse()
@@ -69,13 +66,29 @@ export class AuthController {
     const { accessToken } =
       await this.authService.signInWithDiscord(discordUser);
 
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60,
-    });
+    const route = `${this.configService.get('FRONTEND_URL')}/login?token=${encodeURIComponent(accessToken)}`;
 
-    res.redirect(this.configService.get('FRONTEND_URL'));
+    res.redirect(route);
+  }
+
+  @Get('check-status')
+  @Auth()
+  @ApiCheckStatusResponse()
+  checkStatus(@GetUser() user: User) {
+    return this.authService.checkStatus(user);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiForgotPasswordResponse()
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiResetPasswordResponse()
+  async resetPasswordConfirm(@Body() { token, password }: ResetPasswordDto) {
+    return this.authService.resetPasswordConfirm(token, password);
   }
 }

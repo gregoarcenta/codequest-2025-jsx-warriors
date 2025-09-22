@@ -2,11 +2,17 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from '../../config';
 import { ApiProperty } from '@nestjs/swagger';
+import { Post } from '../../posts/entities/post.entity';
+import { Comment } from '../../comments/entities/comment.entity';
+import { Bookmark } from './bookmark.entity';
+import { PostLike } from '../../likes/entities/postLike.entity';
+import { CommentLike } from '../../likes/entities/commentLike.entity';
 
 @Entity('users')
 export class User {
@@ -54,20 +60,27 @@ export class User {
     description: 'Avatar URL',
     example: 'https://res.cloudinary.com/.../avatar.png',
   })
-  @Column({ type: 'varchar', length: 254, nullable: true, name: 'avatar_url' })
+  @Column({ type: 'text', nullable: true, name: 'avatar_url' })
   avatarUrl: string;
 
-  @ApiProperty({})
+  @ApiProperty({ description: 'User bio', example: 'This is my bio' })
   @Column({ type: 'varchar', length: 254, nullable: true })
   bio: string;
 
-  @ApiProperty({ description: 'User posts count', example: 12 })
-  @Column({ type: 'int', default: 0, name: 'posts_count' })
-  postsCount: number;
+  @OneToMany(() => Post, (post) => post.author)
+  posts: Post[];
 
-  @ApiProperty({ description: 'User likes count', example: 34 })
-  @Column({ type: 'int', default: 0, name: 'likes_count' })
-  likesCount: number;
+  @OneToMany(() => PostLike, (postLike) => postLike.user)
+  likes: PostLike[];
+
+  @OneToMany(() => CommentLike, (commentLike) => commentLike.user)
+  commentsLikes: CommentLike[];
+
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.user)
+  bookmarks: Bookmark[];
+
+  @OneToMany(() => Comment, (comment) => comment.author)
+  comments: Comment[];
 
   @ApiProperty({
     description: 'User isActive',

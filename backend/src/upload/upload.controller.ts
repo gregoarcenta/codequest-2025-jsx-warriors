@@ -10,6 +10,8 @@ import { UploadService } from './upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiUploadImageResponse } from '../swagger/decorators/upload/api-upload-image.decorator';
+import { Auth } from '../auth/decorators';
+import { Role } from '../config';
 
 @ApiTags('Upload')
 @Controller('upload')
@@ -17,14 +19,14 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post('post')
-  // @Auth(Role.ADMIN)
+  @Auth(Role.ADMIN)
   @UseInterceptors(FileInterceptor('image'))
   @ApiUploadImageResponse()
   uploadPostImage(
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({ fileType: 'image/jpeg|jpg|png|gif' })
-        .addMaxSizeValidator({ maxSize: 250000 })
+        .addMaxSizeValidator({ maxSize: 4 * 1024 * 1024 })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )
     file: Express.Multer.File,
@@ -33,14 +35,14 @@ export class UploadController {
   }
 
   @Post('avatar')
-  // @Auth()
+  @Auth()
   @UseInterceptors(FileInterceptor('image'))
   @ApiUploadImageResponse()
   uploadAvatarImage(
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({ fileType: 'image/jpeg|jpg|png|gif' })
-        .addMaxSizeValidator({ maxSize: 250000 })
+        .addMaxSizeValidator({ maxSize: 1024 * 1024 })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )
     file: Express.Multer.File,
