@@ -19,6 +19,7 @@ import { MailService } from 'src/mail/mail.service';
 import { ConfigService } from '@nestjs/config';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
 import { AuthResponse, DiscordUser, ResetPasswordPayload } from './interfaces';
+import { Role } from '../config';
 
 @Injectable()
 export class AuthService {
@@ -50,6 +51,10 @@ export class AuthService {
     });
 
     try {
+      const usersCount = await this.usersRepository.count();
+      if (usersCount === 0) {
+        user.roles = [Role.ADMIN];
+      }
       await this.usersRepository.save(user);
     } catch (err) {
       this.handlerException.handlerDBException(err);
