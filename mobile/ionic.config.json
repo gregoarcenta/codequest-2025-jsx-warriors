@@ -1,7 +1,0 @@
-{
-  "name": "app-code-quest",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular-standalone"
-}
