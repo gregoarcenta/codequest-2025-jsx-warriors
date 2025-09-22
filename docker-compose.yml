@@ -5,23 +5,6 @@ services:
     ports:
       - "5432:5432"
     env_file: ./backend/.env
-    profiles: [ backend, frontend ]
     volumes:
       - ./backend/postgres:/var/lib/postgresql/data
-
-  backend:
-    build:
-      context: ./backend
-      target: dev
-      dockerfile: Dockerfile
-    volumes:
-      - ./backend:/app/
-      - /app/node_modules
-    container_name: backend
-    ports:
-      - "3000:3000"
-    profiles: [ frontend ]
-    depends_on:
-      - postgres
-  #docker compose --profile backend up -d
-  #docker compose --profile frontend up -d --build
+  #docker compose up -d

@@ -9,6 +9,7 @@ import { CATEGORIES_DATA } from '../data/categories.data';
 import { USERS_DATA } from '../data/users.data';
 import { POST_DATA } from '../data/posts.data';
 import { COMMENTS_DATA } from '../data/comments.data';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SeedService implements OnModuleInit {
@@ -21,9 +22,12 @@ export class SeedService implements OnModuleInit {
     private readonly postRepository: Repository<Post>,
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
+    private readonly configService: ConfigService,
   ) {}
   async onModuleInit() {
-    await this.seedDatabase();
+    if (this.configService.get('NODE_ENV') === 'development') {
+      await this.seedDatabase();
+    }
   }
   async seedDatabase() {
     console.log('Verificando la base de datos para seeding...');

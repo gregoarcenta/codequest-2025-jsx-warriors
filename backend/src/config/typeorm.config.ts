@@ -16,8 +16,7 @@ const config = {
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}'],
   autoLoadEntities: true,
-  // synchronize: !isProduction,
-  synchronize: true,
+  synchronize: !isProduction,
   ssl: isProduction,
   extra: isProduction ? { rejectUnauthorized: false } : null,
 };

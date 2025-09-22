@@ -4,11 +4,11 @@
 
 ## 🌐 Demo y Visión General
 
-¡Bienvenido al blog de DevTalles! Este proyecto es nuestra entrada para el concurso **CodeQuest 2025**. El objetivo es
+¡Bienvenido al blog de DevTalles! Este proyecto es nuestra entrada para el **CodeQuest 2025**. El objetivo es
 crear una plataforma de blog moderna y funcional para la comunidad de DevTalles. Puedes ver una demostración en vivo de
 nuestra aplicación en el siguiente enlace:
 
-👉 **[Ir a la demo en vivo](https://devtalles-blog-frontend.vercel.app/)**
+👉 **[Ir a la demo en vivo](https://blog-devtalles.jspadev.com)**
 
 ---
 
@@ -53,81 +53,100 @@ La aplicación se organiza en dos directorios principales: `frontend` y `backend
 Para ejecutar el proyecto, te ofrecemos dos opciones: un modo de producción optimizado para demostraciones rápidas, y un
 modo de desarrollo para trabajar en el código.
 
-### **Modo de Producción**
+---
+
+### **1. Requisitos Previos**
+
+Asegúrate de tener **Docker** y **Docker Compose** instalados en tu sistema. Estos son necesarios para ejecutar los
+contenedores de la aplicación.
+
+---
+
+### **2. Preparar el Repositorio**
+
+1. **Clonar el repositorio:**
+   ```sh
+   git clone https://github.com/gregoarcenta/codequest-2025-jsx-warriors.git
+   ```
+2. **Navegar al directorio del proyecto:**
+   ```sh
+   cd codequest-2025-jsx-warriors
+   ```
+
+---
+
+### **3. Configuración de Entorno**
+
+Este proyecto utiliza variables de entorno para su configuración. Para el backend, necesitarás crear y configurar un
+archivo `.env`.
+
+1. **Crear el archivo `.env`:**
+   Copia el archivo de ejemplo proporcionado para crear tu archivo de configuración.
+    ```sh
+    cp backend/.env.example backend/.env
+    ```
+2. **Configurar tus variables:**
+   Abre el archivo `backend/.env` que acabas de crear y edita las variables de entorno necesarias (por ejemplo,
+   credenciales de base de datos, claves de API, etc.) para que la aplicación funcione correctamente.
+
+---
+
+### **4. Modo de Producción Local**
 
 Este modo levanta la aplicación completa utilizando imágenes de Docker ya construidas, ideal para una demostración sin
 necesidad de configuración adicional.
 
-1. **Clonar el repositorio**
-   ```sh
-   git clone https://github.com/gregoarcenta/codequest-2025-jsx-warriors.git
-   
-   ```
-   Una vez que la clonación haya finalizado, navega al directorio del proyecto:
-   ```sh
-   cd codequest-2025-jsx-warriors
-    ```
-2. **Configurar las variables de entorno**
-
-   Este proyecto utiliza variables de entorno para su configuración. Para el backend, necesitarás crear un archivo
-   ```.env``` a partir del archivo de ejemplo proporcionado ```.env.example```. Esto es crucial para que la aplicación
-   funcione correctamente.
-
-    ```sh
-   cp backend/.env.example backend/.env
-   ```
-
-3. **Ejecutar la aplicación completa**
-
-   Para ejecutar la aplicación con todos sus servicios (backend, frontend, base de datos, etc.), usaremos Docker
-   Compose. Esto simplificará el proceso al levantar todos los contenedores de forma simultánea. Ejecuta el siguiente
-   comando para construir las imágenes y levantar los servicios en modo detached
+1. **Levantar los servicios:**
    ```sh
    docker compose -f docker-compose.prod.yml up --build -d
    ```
-
-### **Modo de Desarrollo**
-
-Este modo está diseñado para un flujo de trabajo de desarrollo, permitiendo modificaciones en el código fuente.
-
-1. **Prerrequisitos**: Asegúrate de tener **Docker** y **Docker Compose** instalados.
-
-2. **Clonar el repositorio**
+2. **Verificar el estado de los servicios:**
    ```sh
-   git clone [https://github.com/tu-usuario/nombre-del-repo.git](https://github.com/tu-usuario/nombre-del-repo.git)
-   cd nombre-del-repo
+   docker compose -f docker-compose.prod.yml ps
    ```
+3. **Acceder a la aplicación:**
+    * **Aplicación Frontend:** `http://localhost:3001`
+    * **API del Backend:** `http://localhost:3000`
+    * **Documentación de Swagger:** `http://localhost:3000/api`
 
-3. **Configurar las variables de entorno**
+
+4. **Detener la Aplicación:**
+
+```sh
+  docker compose -f docker-compose.prod.yml down
+```
+
+---
+
+### **5. Modo de Desarrollo**
+
+Este modo está diseñado para un flujo de trabajo de desarrollo, permitiendo modificaciones en el código fuente con un
+ciclo de retroalimentación rápido.
+
+---
+
+1. **Levantar la Base de Datos**
+
+```sh
+  docker compose up --build -d
+```
+
+2. **Ejecutar el backend:**
    ```sh
-   cp backend/.env.example backend/.env
+   cd backend
+   npm install
+   npm run start:dev
    ```
-   > **Importante**: En el archivo `.env` del backend, la variable `DB_HOST` debe ser **`postgresdb`** para que la
-   conexión a la base de datos funcione dentro de la red de Docker.
-
-4. **Levantar el backend y la base de datos**
+3. **Ejecutar el frontend:**
    ```sh
-   docker compose --profile backend up --build -d
-   ```
-
-5. **Ejecutar el frontend**
-   ```sh
-   cd frontend
+   cd ../frontend
    npm install
    npm run dev
    ```
-
----
-
-## 📜 URLs de la Aplicación
-
-Una vez que la aplicación esté en ejecución, podrás acceder a los siguientes servicios:
-
-* **Frontend**: `http://localhost:3001`
-* **Backend**: `http://localhost:3000`
-* **Documentación de la API (Swagger)**: `http://localhost:3000/api`
-
----
+5. **Acceder a la aplicación:**
+    * **Aplicación Frontend:** `http://localhost:3001`
+    * **API del Backend:** `http://localhost:3000`
+    * **Documentación de Swagger:** `http://localhost:3000/api`
 
 ## 📄 Licencia
 

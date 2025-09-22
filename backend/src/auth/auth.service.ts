@@ -15,23 +15,22 @@ import { IPayloadJwt } from './strategies/jwt.strategy';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { User } from '../users/entities/user.entity';
-import { AuthResponse } from './interfaces/auth-response';
-import { DiscordUser } from './interfaces/discord-user';
 import { MailService } from 'src/mail/mail.service';
 import { ConfigService } from '@nestjs/config';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
-import { ResetPasswordPayload } from './interfaces';
+import { AuthResponse, DiscordUser, ResetPasswordPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
-    @InjectRepository(PasswordResetToken) private readonly passwordResetToken: Repository<PasswordResetToken>,
+    @InjectRepository(PasswordResetToken)
+    private readonly passwordResetToken: Repository<PasswordResetToken>,
     private readonly handlerException: HandlerException,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly mailService: MailService
-  ) { }
+    private readonly mailService: MailService,
+  ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<AuthResponse> {
     const existingUser = await this.usersRepository.findOneBy({
@@ -189,6 +188,8 @@ export class AuthService {
   }
 
   public async forgotPassword(email: string): Promise<Object> {
+    const urlFront = this.configService.get<string>('FRONTEND_URL');
+    const secret = this.configService.get<string>('JWT_SECRET');
 
     const user = await this.usersRepository.findOne({ where: { email } });
 
@@ -198,22 +199,18 @@ export class AuthService {
 
     const tokenPasswordRecovery = this.jwtService.sign(
       { id: user.id, email: user.email },
-      {
-        secret: process.env.JWT_SECRET,
-        expiresIn: '15m',
-        jwtid: jwtId
-      },
+      { secret, expiresIn: '15m', jwtid: jwtId },
     );
 
     const resetRecord = this.passwordResetToken.create({
       userId: user.id,
       jwtId,
-      expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000),
     });
 
     await this.passwordResetToken.save(resetRecord);
 
-    const linkPasswordRecovery: string = `${process.env.RESET_PASSWORD_URL}?token=${encodeURIComponent(tokenPasswordRecovery)}`;
+    const linkPasswordRecovery = `${urlFront}/forgot-password?token=${encodeURIComponent(tokenPasswordRecovery)}`;
 
     const bodyEmailPasswordRecovery = {
       to: user.email,
@@ -224,24 +221,28 @@ export class AuthService {
         url: linkPasswordRecovery,
         appName: this.configService.get<string>('APP_NAME'),
         supportEmail: this.configService.get<string>('SUPPORT_EMAIL'),
-      }
+      },
     };
 
     await this.mailService.sendEmail(bodyEmailPasswordRecovery);
 
     return {
       statusCode: HttpStatus.OK,
-      message: "El enlace para restablecer tu contraseña se ha enviado exitosamente a tu correo electrónico."
+      message:
+        'El enlace para restablecer tu contraseña se ha enviado exitosamente a tu correo electrónico.',
     };
-
   }
 
-  public async resetPasswordConfirm(token: string, password: string): Promise<Object> {
-
+  public async resetPasswordConfirm(
+    token: string,
+    password: string,
+  ): Promise<Object> {
     let payload: ResetPasswordPayload = null;
 
     try {
-      payload = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+      payload = this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
     } catch (e) {
       throw new UnauthorizedException('Token inválido o expirado');
     }
@@ -251,10 +252,14 @@ export class AuthService {
     });
 
     if (!record) throw new UnauthorizedException('Token no registrado');
-    if (record.isUsed) throw new BadRequestException('El token ya fue utilizado');
-    if (record.expiresAt < new Date()) throw new BadRequestException('El token ha expirado');
+    if (record.isUsed)
+      throw new BadRequestException('El token ya fue utilizado');
+    if (record.expiresAt < new Date())
+      throw new BadRequestException('El token ha expirado');
 
-    const user = await this.usersRepository.findOne({ where: { id: payload.id } });
+    const user = await this.usersRepository.findOne({
+      where: { id: payload.id },
+    });
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
     user.password = await bcrypt.hash(password, 10);
@@ -265,14 +270,14 @@ export class AuthService {
     const savedRecord = await this.passwordResetToken.save(record);
 
     if (!savedRecord) {
-      throw new BadRequestException('No se pudo actualizar el estado del token');
+      throw new BadRequestException(
+        'No se pudo actualizar el estado del token',
+      );
     }
 
     return {
       statusCode: HttpStatus.OK,
       message: 'La contraseña se ha restablecido correctamente.',
     };
-
   }
-
 }
