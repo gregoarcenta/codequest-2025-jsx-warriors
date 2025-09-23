@@ -70,7 +70,8 @@ export class NewsletterService {
 
     subscriber.isConfirmed = true;
     subscriber.confirmedAt = new Date();
-    subscriber.confirmationToken = null; // Remove token after confirmation
+
+    console.log(subscriber);
     await repo.save(subscriber);
     return { message: 'Email successfully confirmed. Thank you!' };
   }
