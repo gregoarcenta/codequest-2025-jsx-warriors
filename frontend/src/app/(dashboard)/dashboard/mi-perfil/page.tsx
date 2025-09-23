@@ -111,7 +111,7 @@ export default function ProfilePage() {
         },
       });
 
-      const newAvatarUrl = uploadResponse.data.secureUrl;
+      const newAvatarUrl = uploadResponse.data?.imageUrl || null;
 
       // Actualizar el usuario inmediatamente con la nueva URL del avatar
       const response = await api.patch("/users/me", {
@@ -197,7 +197,7 @@ export default function ProfilePage() {
 
     try {
       await api.patch("/users/me/password", {
-        currentPassword: passwordData.currentPassword,
+        oldPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
 

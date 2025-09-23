@@ -57,50 +57,53 @@ export default function CommentSection({ postId }: CommentSectionProps) {
   // Estados para formularios
   const [newComment, setNewComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState("");
+  const [submittingReply, setSubmittingReply] = useState(false);
 
   // Auth store
   const { isAuthenticated, user } = useAuthStore();
 
+  const fetchComments = async () => {
+    if (!postId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await api.get(`/comments/post/${postId}`);
+      console.log("Comments response:", response.data); // Debug log
+
+      // La API devuelve los comentarios en response.data.comments
+      const commentsData = response.data?.comments || [];
+
+      // Debug: ver la estructura de cada comentario
+      console.log(
+        "Comments structure:",
+        commentsData.map((comment: any) => ({
+          id: comment.id,
+          content: comment.content,
+          author: comment.author,
+          hasAuthor: !!comment.author,
+          likesCount: comment.likesCount,
+          isLiked: comment.isLiked,
+        }))
+      );
+
+      // Todos los comentarios que devuelve la API ya son visibles
+      // No necesitamos filtrar por visibility aquí
+      setComments(commentsData);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      setError("No se pudieron cargar los comentarios");
+      setComments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch comentarios
   useEffect(() => {
-    const fetchComments = async () => {
-      if (!postId) return;
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await api.get(`/comments/post/${postId}`);
-        console.log("Comments response:", response.data); // Debug log
-
-        // La API devuelve los comentarios en response.data.comments
-        const commentsData = response.data?.comments || [];
-
-        // Debug: ver la estructura de cada comentario
-        console.log(
-          "Comments structure:",
-          commentsData.map((comment: any) => ({
-            id: comment.id,
-            content: comment.content,
-            author: comment.author,
-            hasAuthor: !!comment.author,
-            likesCount: comment.likesCount,
-            isLiked: comment.isLiked,
-          }))
-        );
-
-        // Todos los comentarios que devuelve la API ya son visibles
-        // No necesitamos filtrar por visibility aquí
-        setComments(commentsData);
-      } catch (error) {
-        console.error("Error fetching comments:", error);
-        setError("No se pudieron cargar los comentarios");
-        setComments([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchComments();
   }, [postId]);
 
@@ -117,8 +120,9 @@ export default function CommentSection({ postId }: CommentSectionProps) {
 
       if (response.data) {
         // Agregar el nuevo comentario al inicio de la lista
-        setComments((prev) => [response.data, ...prev]);
+        //setComments((prev) => [response.data, ...prev]);
         setNewComment("");
+        await fetchComments();
       }
     } catch (error) {
       console.error("Error creating comment:", error);
@@ -128,27 +132,55 @@ export default function CommentSection({ postId }: CommentSectionProps) {
     }
   };
 
-  // Toggle like en comentario
-  const handleToggleLike = async (commentId: string) => {
+  // Toggle like en comentario (principal o respuesta)
+  const handleToggleLike = async (
+    commentId: string,
+    isReply = false,
+    parentId?: string
+  ) => {
     if (!isAuthenticated) return;
 
     try {
       await api.post(`/likes/comment/${commentId}`);
 
-      // Actualizar el estado local - cambiar isLiked y contador de likes
-      setComments((prev) =>
-        prev.map((comment) =>
-          comment.id === commentId
-            ? {
-                ...comment,
-                isLiked: !comment.isLiked,
-                likesCount: comment.isLiked
-                  ? comment.likesCount - 1
-                  : comment.likesCount + 1,
-              }
-            : comment
-        )
-      );
+      if (isReply && parentId) {
+        // Actualizar like en una respuesta
+        setComments((prev) =>
+          prev.map((comment) =>
+            comment.id === parentId
+              ? {
+                  ...comment,
+                  children: comment.children?.map((reply) =>
+                    reply.id === commentId
+                      ? {
+                          ...reply,
+                          isLiked: !reply.isLiked,
+                          likesCount: reply.isLiked
+                            ? reply.likesCount - 1
+                            : reply.likesCount + 1,
+                        }
+                      : reply
+                  ),
+                }
+              : comment
+          )
+        );
+      } else {
+        // Actualizar like en comentario principal
+        setComments((prev) =>
+          prev.map((comment) =>
+            comment.id === commentId
+              ? {
+                  ...comment,
+                  isLiked: !comment.isLiked,
+                  likesCount: comment.isLiked
+                    ? comment.likesCount - 1
+                    : comment.likesCount + 1,
+                }
+              : comment
+          )
+        );
+      }
     } catch (error) {
       console.error("Error toggling like:", error);
     }
@@ -168,6 +200,38 @@ export default function CommentSection({ postId }: CommentSectionProps) {
     } catch (error) {
       console.error("Error hiding comment:", error);
     }
+  };
+
+  // Responder a un comentario
+  const handleSubmitReply = async (parentId: string) => {
+    if (!replyContent.trim() || !isAuthenticated || submittingReply) return;
+
+    try {
+      setSubmittingReply(true);
+
+      const response = await api.post(`/comments/${postId}`, {
+        content: replyContent.trim(),
+        parentId: parentId,
+      });
+
+      if (response.data) {
+        // Refrescar comentarios para obtener las respuestas actualizadas
+        await fetchComments();
+        setReplyContent("");
+        setReplyingTo(null);
+      }
+    } catch (error) {
+      console.error("Error creating reply:", error);
+      setError("No se pudo enviar la respuesta");
+    } finally {
+      setSubmittingReply(false);
+    }
+  };
+
+  // Cancelar respuesta
+  const handleCancelReply = () => {
+    setReplyingTo(null);
+    setReplyContent("");
   };
 
   // Skeleton para loading
@@ -333,6 +397,10 @@ export default function CommentSection({ postId }: CommentSectionProps) {
                               comment.isLiked
                                 ? "text-green-600 dark:text-green-400"
                                 : "text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400"
+                            } ${
+                              !isAuthenticated
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
                             }`}
                           >
                             <ThumbsUp className="h-4 w-4" />
@@ -342,8 +410,159 @@ export default function CommentSection({ postId }: CommentSectionProps) {
                                 : comment.likesCount || 0}
                             </span>
                           </button>
+
+                          {isAuthenticated && (
+                            <button
+                              onClick={() => setReplyingTo(comment.id)}
+                              className="flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                            >
+                              <Reply className="h-4 w-4" />
+                              <span>Responder</span>
+                            </button>
+                          )}
                         </div>
                       </div>
+
+                      {/* Reply Form */}
+                      {replyingTo === comment.id && (
+                        <div className="mt-4 pl-4 border-l-2 border-purple-200 dark:border-purple-800">
+                          <div className="flex gap-3">
+                            <Avatar className="h-8 w-8 flex-shrink-0">
+                              <AvatarImage src={user?.avatarUrl} />
+                              <AvatarFallback className="bg-purple-100 text-purple-600 text-sm">
+                                {user?.fullName?.charAt(0) || "U"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 space-y-2">
+                              <Textarea
+                                placeholder="Escribe tu respuesta..."
+                                value={replyContent}
+                                onChange={(e) =>
+                                  setReplyContent(e.target.value)
+                                }
+                                className="min-h-[80px] resize-none text-sm border-slate-300 dark:border-slate-600"
+                                disabled={submittingReply}
+                              />
+                              <div className="flex gap-2 justify-end">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={handleCancelReply}
+                                  disabled={submittingReply}
+                                >
+                                  Cancelar
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleSubmitReply(comment.id)}
+                                  disabled={
+                                    !replyContent.trim() || submittingReply
+                                  }
+                                  className="bg-purple-600 hover:bg-purple-700"
+                                >
+                                  <Send className="h-3 w-3 mr-1" />
+                                  {submittingReply
+                                    ? "Enviando..."
+                                    : "Responder"}
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Replies/Children Comments */}
+                      {comment.children && comment.children.length > 0 && (
+                        <div className="mt-6 pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-4">
+                          {comment.children.map((reply) => (
+                            <div key={reply.id} className="flex gap-3">
+                              <Avatar className="h-8 w-8 flex-shrink-0">
+                                <AvatarImage
+                                  src={reply.author?.avatarUrl || ""}
+                                />
+                                <AvatarFallback className="bg-slate-100 text-slate-600 text-sm">
+                                  {reply.author?.fullName?.charAt(0) || "?"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 space-y-2">
+                                <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-2">
+                                      <h5 className="font-medium text-sm text-slate-900 dark:text-white">
+                                        {reply.author?.fullName ||
+                                          "Usuario desconocido"}
+                                      </h5>
+                                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                                        {dayjs(reply.createdAt).fromNow()}
+                                      </span>
+                                    </div>
+
+                                    {/* Admin Actions for Replies */}
+                                    {isAuthenticated &&
+                                      user?.roles?.includes("admin") && (
+                                        <DropdownMenu>
+                                          <DropdownMenuTrigger asChild>
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-5 w-5 p-0 text-slate-400 hover:text-slate-600"
+                                            >
+                                              <MoreVertical className="h-3 w-3" />
+                                            </Button>
+                                          </DropdownMenuTrigger>
+                                          <DropdownMenuContent align="end">
+                                            <DropdownMenuItem
+                                              onClick={() =>
+                                                handleHideComment(reply.id)
+                                              }
+                                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            >
+                                              <EyeOff className="h-4 w-4 mr-2" />
+                                              Ocultar respuesta
+                                            </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                        </DropdownMenu>
+                                      )}
+                                  </div>
+                                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                    {reply.content}
+                                  </p>
+                                </div>
+
+                                {/* Reply Actions */}
+                                <div className="flex items-center gap-3 text-xs">
+                                  <button
+                                    onClick={() =>
+                                      handleToggleLike(
+                                        reply.id,
+                                        true,
+                                        comment.id
+                                      )
+                                    }
+                                    disabled={!isAuthenticated}
+                                    className={`flex items-center gap-1 transition-colors ${
+                                      reply.isLiked
+                                        ? "text-green-600 dark:text-green-400"
+                                        : "text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400"
+                                    } ${
+                                      !isAuthenticated
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : ""
+                                    }`}
+                                  >
+                                    <ThumbsUp className="h-3 w-3" />
+                                    <span>
+                                      {reply.isLiked
+                                        ? Math.max(1, reply.likesCount || 0)
+                                        : reply.likesCount || 0}
+                                    </span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

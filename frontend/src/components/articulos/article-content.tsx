@@ -95,7 +95,7 @@ export default function ArticleContent({ slug }: ArticleContentProps) {
 
     try {
       setSavingPost(true);
-      await api.post(`/posts/${post.id}/save`);
+      await api.post(`/users/me/bookmarks/${post.id}`);
 
       // Actualizar el estado local
       setPost((prev) => (prev ? { ...prev, isSaved: !prev.isSaved } : null));
@@ -111,7 +111,7 @@ export default function ArticleContent({ slug }: ArticleContentProps) {
     if (!isAuthenticated || !post) return;
 
     try {
-      await api.post(`/posts/${post.id}/like`);
+      await api.post(`/likes/post/${post.id}`);
 
       // Actualizar el estado local
       setPost((prev) =>

@@ -18,14 +18,16 @@ import { Eye, EyeOff, Mail, Lock, Loader2Icon } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth-store";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginForm() {
   const { login, isAuthenticated } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [processingDiscordToken, setProcessingDiscordToken] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -58,7 +60,46 @@ export default function LoginForm() {
   };
 
   const loginDiscord = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}auth/discord`;
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/discord`;
+  };
+
+  // Función para hacer login automático con token de Discord
+  const handleDiscordTokenLogin = async (token: string) => {
+    try {
+      setProcessingDiscordToken(true);
+
+      // Usar el endpoint check-status para validar el token y obtener los datos del usuario
+      const response = await api.get("/auth/check-status", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Si la respuesta es exitosa, hacer login
+      if (response.data && response.data.user) {
+        login(token, response.data.user);
+
+        // Limpiar el token de la URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete("token");
+        window.history.replaceState({}, "", url.toString());
+
+        toast.success("¡Inicio de sesión con Discord exitoso!");
+        router.push("/perfil");
+      }
+    } catch (error: any) {
+      console.error("Error en login con Discord:", error);
+      const errorMessage =
+        error.response?.data?.message || "Error al autenticar con Discord";
+      toast.error(errorMessage);
+
+      // Limpiar el token de la URL en caso de error
+      const url = new URL(window.location.href);
+      url.searchParams.delete("token");
+      window.history.replaceState({}, "", url.toString());
+    } finally {
+      setProcessingDiscordToken(false);
+    }
   };
 
   // Verificar hidratación del estado de auth
@@ -66,16 +107,26 @@ export default function LoginForm() {
     setIsHydrated(true);
   }, []);
 
+  // Verificar si hay token de Discord en la URL y hacer login automático
+  useEffect(() => {
+    if (isHydrated && !isAuthenticated) {
+      const token = searchParams.get("token");
+      if (token && !processingDiscordToken) {
+        handleDiscordTokenLogin(token);
+      }
+    }
+  }, [isHydrated, searchParams, isAuthenticated, processingDiscordToken]);
+
   // Redirigir si está autenticado (solo después de hidratación)
   useEffect(() => {
-    if (isHydrated && isAuthenticated) {
+    if (isHydrated && isAuthenticated && !processingDiscordToken) {
       router.push("/perfil");
       return;
     }
-  }, [isAuthenticated, router, isHydrated]);
+  }, [isAuthenticated, router, isHydrated, processingDiscordToken]);
 
-  // Mostrar loading durante la hidratación inicial
-  if (!isHydrated) {
+  // Mostrar loading durante la hidratación inicial o procesamiento de token Discord
+  if (!isHydrated || processingDiscordToken) {
     return (
       <section className="relative -mt-8 pb-16">
         <div className="container mx-auto px-4">
@@ -86,7 +137,9 @@ export default function LoginForm() {
                   <div className="text-center">
                     <Loader2Icon className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-600" />
                     <p className="text-slate-600 dark:text-slate-400">
-                      Inicializando...
+                      {processingDiscordToken
+                        ? "Autenticando con Discord..."
+                        : "Inicializando..."}
                     </p>
                   </div>
                 </CardContent>

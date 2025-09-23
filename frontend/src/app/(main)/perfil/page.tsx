@@ -52,21 +52,29 @@ interface BookmarkData {
     id: string;
     title: string;
     slug: string;
-    excerpt: string;
-    readTime: number;
+    content: string;
+    coverImageUrl: string | null;
+    status: string;
+    isFeatured: boolean;
+    viewsCount: number;
     publishedAt: string;
-    category: {
+    createdAt: string;
+    updatedAt: string;
+    // Campos opcionales que pueden no estar presentes
+    excerpt?: string;
+    readTime?: number;
+    category?: {
       id: string;
       name: string;
     };
-    author: {
+    author?: {
       id: string;
       fullName: string;
     };
-    likesCount: number;
-    commentsCount: number;
+    likesCount?: number;
+    commentsCount?: number;
   };
-  createdAt: string;
+  createdAt?: string; // Puede no estar presente en algunos casos
 }
 
 interface UpdateUserDto {
@@ -183,8 +191,8 @@ export default function PerfilPage() {
       console.log("Bookmarks response:", response);
       console.log("Bookmarks data:", response.data);
 
-      // La respuesta podría tener diferentes estructuras
-      const bookmarksData = response.data.data || (response.data as any) || [];
+      // La API devuelve { bookmarks: [...], total, page, limit, pages }
+      const bookmarksData = response.data.bookmarks || [];
 
       setBookmarks(Array.isArray(bookmarksData) ? bookmarksData : []);
     } catch (error) {
@@ -304,12 +312,12 @@ export default function PerfilPage() {
         },
       });
 
-      const result = response.data.data;
+      const result = response.data;
 
       // Actualizar el usuario con la nueva imagen
       const updateResponse = await api.patch("/users/me", {
         ...editData,
-        avatarUrl: result.url,
+        avatarUrl: result.imageUrl,
       });
 
       console.log("Avatar update response:", updateResponse);
@@ -745,12 +753,16 @@ export default function PerfilPage() {
                           <div className="flex justify-between items-start mb-4">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <Badge variant="secondary">
-                                  {bookmark.post.category.name}
-                                </Badge>
-                                <span className="text-sm text-slate-500">
-                                  {bookmark.post.readTime} min de lectura
-                                </span>
+                                {bookmark.post.category && (
+                                  <Badge variant="secondary">
+                                    {bookmark.post.category.name}
+                                  </Badge>
+                                )}
+                                {bookmark.post.readTime && (
+                                  <span className="text-sm text-slate-500">
+                                    {bookmark.post.readTime} min de lectura
+                                  </span>
+                                )}
                               </div>
 
                               <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2 hover:text-purple-600 transition-colors">
@@ -759,28 +771,37 @@ export default function PerfilPage() {
                                 </Link>
                               </h3>
 
-                              <p className="text-slate-600 dark:text-slate-400 mb-3">
-                                {bookmark.post.excerpt}
-                              </p>
+                              {bookmark.post.excerpt && (
+                                <p className="text-slate-600 dark:text-slate-400 mb-3">
+                                  {bookmark.post.excerpt}
+                                </p>
+                              )}
 
                               <div className="flex items-center justify-between text-sm text-slate-500">
                                 <div className="flex items-center gap-4">
-                                  <span>
-                                    Por {bookmark.post.author.fullName}
-                                  </span>
+                                  {bookmark.post.author && (
+                                    <span>
+                                      Por {bookmark.post.author.fullName}
+                                    </span>
+                                  )}
                                   <span>
                                     {formatDate(bookmark.post.publishedAt)}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                  <div className="flex items-center gap-1">
-                                    <Heart className="w-4 h-4" />
-                                    {bookmark.post.likesCount}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <MessageSquare className="w-4 h-4" />
-                                    {bookmark.post.commentsCount}
-                                  </div>
+                                  {bookmark.post.likesCount !== undefined && (
+                                    <div className="flex items-center gap-1">
+                                      <Heart className="w-4 h-4" />
+                                      {bookmark.post.likesCount}
+                                    </div>
+                                  )}
+                                  {bookmark.post.commentsCount !==
+                                    undefined && (
+                                    <div className="flex items-center gap-1">
+                                      <MessageSquare className="w-4 h-4" />
+                                      {bookmark.post.commentsCount}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -809,7 +830,9 @@ export default function PerfilPage() {
                           </div>
 
                           <div className="text-xs text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-700">
-                            Guardado el {formatDate(bookmark.createdAt)}
+                            {bookmark.createdAt
+                              ? `Guardado el ${formatDate(bookmark.createdAt)}`
+                              : "Artículo guardado"}
                           </div>
                         </div>
                       ))}

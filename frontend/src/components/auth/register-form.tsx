@@ -54,6 +54,10 @@ export default function RegisterForm() {
     }));
   };
 
+  const registerDiscord = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/discord`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
@@ -216,7 +220,7 @@ export default function RegisterForm() {
                   <Button
                     variant="outline"
                     className="w-full h-11 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-200 text-sm bg-white/50 dark:bg-transparent"
-                    onClick={() => console.log("Register with Discord")}
+                    onClick={registerDiscord}
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <svg

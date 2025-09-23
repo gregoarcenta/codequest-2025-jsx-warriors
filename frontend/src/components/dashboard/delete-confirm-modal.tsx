@@ -42,7 +42,7 @@ export default function DeleteConfirmModal({
             disabled={isLoading}
             className="bg-red-600 hover:bg-red-700"
           >
-            {isLoading ? "Eliminando..." : "Eliminar"}
+            {isLoading ? "Procesando..." : "Si, continuar"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -36,6 +36,7 @@ import {
   Eye,
   Filter,
   Heart,
+  Loader2,
   MessageSquare,
   Search,
   User,
@@ -419,6 +420,11 @@ export default function ListArticles() {
                     placeholder="Buscar por titulo..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        applyFilters();
+                      }
+                    }}
                     className="pl-10"
                   />
                 </div>
@@ -490,8 +496,13 @@ export default function ListArticles() {
 
             {/* Results info */}
             <div className="md:col-span-12 mt-4 gap-2 flex items-center justify-center">
-              <Button size="sm" onClick={applyFilters}>
-                <Filter /> Aplicar filtros
+              <Button size="sm" onClick={applyFilters} disabled={loading}>
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Filter />
+                )}{" "}
+                Aplicar filtros
               </Button>
               <Button variant="outline" size="sm" onClick={resetFilters}>
                 <Brush /> Limpiar filtros

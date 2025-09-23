@@ -165,16 +165,18 @@ export default function UsuariosPage() {
 
     try {
       setDeleting(true);
-      await api.delete(`/users/${userToDelete.id}`);
+      await api.patch(`/users/${userToDelete.id}`, {
+        isActive: false,
+      });
 
       setIsDeleteModalOpen(false);
       setUserToDelete(null);
-      toast.success("Usuario eliminado correctamente");
+      toast.success("Usuario desactivado correctamente");
       fetchUsers(); // Refrescar lista
     } catch (error: any) {
       console.error("Error deleting user:", error);
       const errorMessage =
-        error.response?.data?.message || "Error al eliminar usuario";
+        error.response?.data?.message || "Error al desactivar usuario";
       toast.error(errorMessage);
     } finally {
       setDeleting(false);
@@ -612,8 +614,8 @@ export default function UsuariosPage() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteUser}
-        title="Eliminar Usuario"
-        description={`¿Estás seguro de que deseas eliminar al usuario "${userToDelete?.fullName}"? Esta acción no se puede deshacer.`}
+        title="Desactivar Usuario"
+        description={`¿Estás seguro de que deseas desactivar al usuario "${userToDelete?.fullName}"? Esta acción no se puede deshacer.`}
         isLoading={deleting}
       />
     </div>
