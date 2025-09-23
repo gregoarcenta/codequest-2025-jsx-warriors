@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const apiUrl =
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/";
     const resp = await fetch(
-      `${apiUrl}posts/published/${slug}`,
+      `${apiUrl}/posts/published/${slug}`,
       { next: { revalidate: 3600 } } // Cache for 1 hour
     );
 
@@ -64,10 +64,8 @@ export default async function ArticlesSlugPage({ params }: Props) {
   let postData = null;
 
   try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL ||
-      "https://api-devtalles.jspadev.com/api/";
-    const resp = await fetch(`${apiUrl}posts/published/${slug}`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const resp = await fetch(`${apiUrl}/posts/published/${slug}`, {
       next: { revalidate: 3600 },
     });
 

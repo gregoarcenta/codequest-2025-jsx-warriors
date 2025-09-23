@@ -77,6 +77,11 @@ export default function CategoriasPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [featuredFilter, setFeaturedFilter] = useState<string>("all");
 
+  // Estados temporales para los filtros (antes de aplicar)
+  const [tempSearchTerm, setTempSearchTerm] = useState("");
+  const [tempStatusFilter, setTempStatusFilter] = useState<string>("all");
+  const [tempFeaturedFilter, setTempFeaturedFilter] = useState<string>("all");
+
   // Stats
   const [stats, setStats] = useState({
     total: 0,
@@ -97,6 +102,13 @@ export default function CategoriasPage() {
   useEffect(() => {
     fetchCategories();
   }, [currentPage, searchTerm, statusFilter, featuredFilter]);
+
+  // Sincronizar filtros temporales con los aplicados al cargar
+  useEffect(() => {
+    setTempSearchTerm(searchTerm);
+    setTempStatusFilter(statusFilter);
+    setTempFeaturedFilter(featuredFilter);
+  }, [searchTerm, statusFilter, featuredFilter]);
 
   const fetchCategories = async () => {
     try {
@@ -220,10 +232,28 @@ export default function CategoriasPage() {
   };
 
   const resetFilters = () => {
+    setTempSearchTerm("");
+    setTempStatusFilter("all");
+    setTempFeaturedFilter("all");
     setSearchTerm("");
     setStatusFilter("all");
     setFeaturedFilter("all");
     setCurrentPage(1);
+  };
+
+  const applyFilters = () => {
+    setSearchTerm(tempSearchTerm);
+    setStatusFilter(tempStatusFilter);
+    setFeaturedFilter(tempFeaturedFilter);
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = () => {
+    return (
+      searchTerm.trim() !== "" ||
+      statusFilter !== "all" ||
+      featuredFilter !== "all"
+    );
   };
 
   const StatsCard = ({
@@ -282,11 +312,17 @@ export default function CategoriasPage() {
         {/* Filters Skeleton */}
         <Card>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-32" />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <div></div>
+              </div>
+              <div className="flex justify-center gap-2">
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-32" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -361,43 +397,84 @@ export default function CategoriasPage() {
       {/* Filters */}
       <Card>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Buscar categorías..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <div className="space-y-4">
+            {hasActiveFilters() && (
+              <div className="flex items-center gap-2 mb-4">
+                <Badge
+                  variant="secondary"
+                  className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                >
+                  <Filter className="w-3 h-3 mr-1" />
+                  Filtros activos
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetFilters}
+                  className="text-xs h-6 px-2"
+                >
+                  Limpiar todo
+                </Button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Buscar categorías..."
+                  value={tempSearchTerm}
+                  onChange={(e) => setTempSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              <Select
+                value={tempStatusFilter}
+                onValueChange={setTempStatusFilter}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los estados</SelectItem>
+                  <SelectItem value="active">Activas</SelectItem>
+                  <SelectItem value="inactive">Inactivas</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={tempFeaturedFilter}
+                onValueChange={setTempFeaturedFilter}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Destacado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="featured">Destacadas</SelectItem>
+                  <SelectItem value="not-featured">No destacadas</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los estados</SelectItem>
-                <SelectItem value="active">Activas</SelectItem>
-                <SelectItem value="inactive">Inactivas</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={featuredFilter} onValueChange={setFeaturedFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Destacado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="featured">Destacadas</SelectItem>
-                <SelectItem value="not-featured">No destacadas</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" onClick={resetFilters}>
-              <Filter className="mr-2 h-4 w-4" />
-              Limpiar
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Button
+                variant="outline"
+                onClick={resetFilters}
+                className="w-full sm:w-auto"
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Limpiar Filtros
+              </Button>
+              <Button
+                onClick={applyFilters}
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Aplicar Filtros
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

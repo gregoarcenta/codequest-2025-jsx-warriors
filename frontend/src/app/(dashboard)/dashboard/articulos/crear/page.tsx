@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import BlogEditor from "@/components/BlogEditor";
 
 import {
   Select,
@@ -14,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Save, FileText, Tag, Star, Eye } from "lucide-react";
+import { ArrowLeft, Save, FileText, Tag, Star } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -135,21 +136,50 @@ export default function CrearArticuloPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild>
-          <Link href="/dashboard/articulos">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Nuevo Artículo</h1>
-          <p className="text-muted-foreground">
-            Crea un nuevo artículo para el blog
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" asChild>
+            <Link href="/dashboard/articulos">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Nuevo Artículo
+            </h1>
+            <p className="text-muted-foreground">
+              Crea un nuevo artículo para el blog
+            </p>
+          </div>
+        </div>
+
+        <div className="flex space-x-4">
+          <Button variant="outline" asChild disabled={saving}>
+            <Link href="/dashboard/articulos">Cancelar</Link>
+          </Button>
+          <Button
+            type="submit"
+            form="article-form"
+            disabled={
+              saving ||
+              !formData.title.trim() ||
+              !formData.content.trim() ||
+              formData.content.replace(/<[^>]*>/g, "").trim().length < 50 ||
+              !formData.categoryId
+            }
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            {saving ? "Creando..." : "Crear Artículo"}
+          </Button>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="w-full space-y-6">
+      <form
+        id="article-form"
+        onSubmit={handleSubmit}
+        className="w-full space-y-6"
+      >
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -219,6 +249,17 @@ export default function CrearArticuloPage() {
               <Label htmlFor="content">
                 Contenido <span className="text-red-500">*</span>
               </Label>
+              <BlogEditor
+                content={formData.content}
+                onChange={(value: string) =>
+                  handleInputChange("content", value)
+                }
+                placeholder="Escribe el contenido de tu artículo aquí..."
+              />
+              <p className="text-xs text-muted-foreground">
+                {formData.content.replace(/<[^>]*>/g, "").length} caracteres
+                (mínimo 50)
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -255,78 +296,6 @@ export default function CrearArticuloPage() {
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Vista Previa
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="border rounded-lg p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {categories.find((c) => c.id === formData.categoryId) && (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                      {
-                        categories.find((c) => c.id === formData.categoryId)
-                          ?.name
-                      }
-                    </span>
-                  )}
-                  {formData.isFeatured && (
-                    <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs flex items-center gap-1">
-                      <Star className="w-3 h-3" />
-                      Destacado
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <h2 className="text-xl font-bold">
-                {formData.title || "Título del artículo"}
-              </h2>
-
-              <div className="prose max-w-none">
-                <div
-                  className="text-muted-foreground"
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      formData.content ||
-                      "El contenido del artículo aparecerá aquí...",
-                  }}
-                />
-              </div>
-
-              {formData.title && (
-                <p className="text-xs text-muted-foreground">
-                  Slug: {generateSlug(formData.title)}
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex justify-end space-x-4">
-          <Button variant="outline" asChild disabled={saving}>
-            <Link href="/dashboard/articulos">Cancelar</Link>
-          </Button>
-          <Button
-            type="submit"
-            disabled={
-              saving ||
-              !formData.title.trim() ||
-              !formData.content.trim() ||
-              formData.content.replace(/<[^>]*>/g, "").trim().length < 50 ||
-              !formData.categoryId
-            }
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {saving ? "Creando..." : "Crear Artículo"}
-          </Button>
-        </div>
       </form>
     </div>
   );
