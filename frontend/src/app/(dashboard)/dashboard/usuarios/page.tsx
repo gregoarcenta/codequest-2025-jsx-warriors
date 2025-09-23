@@ -319,8 +319,8 @@ export default function UsuariosPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-              <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2">
+              {/* <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Buscar por nombre o email..."
@@ -328,7 +328,7 @@ export default function UsuariosPage() {
                   onChange={(e) => setTempSearchTerm(e.target.value)}
                   className="pl-10"
                 />
-              </div>
+              </div> */}
 
               <Select value={tempRoleFilter} onValueChange={setTempRoleFilter}>
                 <SelectTrigger className="w-full">

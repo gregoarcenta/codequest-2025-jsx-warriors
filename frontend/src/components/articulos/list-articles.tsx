@@ -67,6 +67,7 @@ interface ApiPost {
     name: string;
   };
   likesCount: number;
+  commentsCount: number;
   isLiked: boolean;
   isSaved: boolean;
 }
@@ -604,7 +605,9 @@ export default function ListArticles() {
                         </div>
                         <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
                           <MessageSquare className="h-4 w-4" />
-                          <span className="font-medium">0</span>
+                          <span className="font-medium">
+                            {article.commentsCount || 0}
+                          </span>
                         </div>
                       </div>
                       <Link href={`/articulos/${article.slug}`}>

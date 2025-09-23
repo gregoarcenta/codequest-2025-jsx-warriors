@@ -23,7 +23,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!resp.ok) {
       console.error(
-        `Error fetching metadata for slug: ${slug}, status: ${resp.status}`
+        `Error fetching metadata for slug: ${slug}, status: ${resp.status}`,
+        apiUrl,
+        resp
       );
       return {
         title: "Artículo no encontrado",

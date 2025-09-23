@@ -39,12 +39,12 @@ export default function ContactoPage() {
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
               {/* Contact Form */}
-              <div className="lg:col-span-3">
+              <div className="lg:col-span-3 mt-8">
                 <ContactForm />
               </div>
 
               {/* Contact Info */}
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 mt-8">
                 <Card className="border border-white/20 dark:border-slate-700 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md h-fit relative z-10">
                   <CardContent className="p-6">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 text-center">

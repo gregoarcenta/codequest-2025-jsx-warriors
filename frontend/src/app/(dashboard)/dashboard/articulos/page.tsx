@@ -147,7 +147,7 @@ export default function ArticulosPage() {
       params.append("limit", limit.toString());
 
       if (searchTerm.trim()) {
-        params.append("search", searchTerm.trim());
+        params.append("title", searchTerm.trim());
       }
 
       const response = await api.get(`/posts?${params.toString()}`);
@@ -468,6 +468,11 @@ export default function ArticulosPage() {
                   placeholder="Buscar artículos..."
                   value={tempSearchTerm}
                   onChange={(e) => setTempSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      applyFilters();
+                    }
+                  }}
                   className="pl-10"
                 />
               </div>

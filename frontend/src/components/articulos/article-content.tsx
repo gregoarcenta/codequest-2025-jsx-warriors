@@ -51,6 +51,7 @@ interface ApiPost {
     name: string;
   };
   likesCount: number;
+  commentsCount: number;
   isLiked: boolean;
   isSaved: boolean;
 }
@@ -270,7 +271,7 @@ export default function ArticleContent({ slug }: ArticleContentProps) {
                 </div>
                 <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                   <MessageSquare className="h-4 w-4 text-green-500" />
-                  <span className="font-medium">0</span>
+                  <span className="font-medium">{post.commentsCount || 0}</span>
                 </div>
               </div>
 

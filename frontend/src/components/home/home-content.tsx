@@ -79,6 +79,7 @@ interface ApiPost {
     name: string;
   };
   likesCount: number;
+  commentsCount: number;
   isLiked: boolean;
   isSaved: boolean;
 }
@@ -117,7 +118,7 @@ const transformApiPostToArticle = (apiPost: ApiPost): Article => {
     featured: apiPost.isFeatured,
     likes: apiPost.likesCount || 0,
     views: apiPost.viewsCount || 0,
-    comments: 0, // Will need to fetch separately from comments API
+    comments: apiPost.commentsCount || 0,
   };
 };
 

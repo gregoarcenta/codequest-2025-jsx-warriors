@@ -123,7 +123,7 @@ export default function ContactForm() {
   };
 
   return (
-    <Card className="border border-white/20 dark:border-slate-700 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
+    <Card className="border border-white/20 dark:border-slate-700 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md ">
       <CardContent className="p-8 md:p-12">
         <div className="mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">

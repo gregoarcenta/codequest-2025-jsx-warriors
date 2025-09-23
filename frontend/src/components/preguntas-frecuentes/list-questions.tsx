@@ -88,10 +88,10 @@ export default function ListQuestions() {
 
   return (
     <section className="relative -mt-8 pb-16 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 ">
         <div className="max-w-4xl mx-auto">
-          <Card className="border border-white/20 dark:border-slate-700 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md relative z-10">
-            <CardContent className="p-8 md:p-12">
+          <Card className="border  border-white/20 dark:border-slate-700 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md relative z-10">
+            <CardContent className="p-8  md:p-12">
               <div className="mb-8">
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-3 rounded-lg">
