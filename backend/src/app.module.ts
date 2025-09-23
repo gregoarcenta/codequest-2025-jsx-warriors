@@ -14,6 +14,7 @@ import { LikesModule } from './likes/likes.module';
 import { DatabaseModule } from './database/database.module';
 import { SeedModule } from './seed/seed.module';
 import { ContactModule } from './contact/contact.module';
+import { NewsletterModule } from './newsletter/newsletter.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ContactModule } from './contact/contact.module';
     UploadModule,
     SeedModule,
     ContactModule,
+    NewsletterModule,
   ],
 })
 export class AppModule {}
