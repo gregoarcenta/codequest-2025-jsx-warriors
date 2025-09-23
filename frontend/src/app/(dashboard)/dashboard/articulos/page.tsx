@@ -249,16 +249,16 @@ export default function ArticulosPage() {
 
     try {
       setDeleting(true);
-      await api.delete(`/posts/${articleToDelete.id}`);
+      await api.patch(`/posts/${articleToDelete.id}/archive`);
 
       setIsDeleteModalOpen(false);
       setArticleToDelete(null);
-      toast.success("Artículo eliminado correctamente");
+      toast.success("Artículo archivado correctamente");
       fetchArticles(); // Refrescar lista
     } catch (error: any) {
       console.error("Error deleting article:", error);
       const errorMessage =
-        error.response?.data?.message || "Error al eliminar artículo";
+        error.response?.data?.message || "Error al archivar artículo";
       toast.error(errorMessage);
     } finally {
       setDeleting(false);
@@ -618,7 +618,7 @@ export default function ArticulosPage() {
                       >
                         {article.status === "published"
                           ? "Publicado"
-                          : "Borrador"}
+                          : "Archivado / Borrador"}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -708,8 +708,8 @@ export default function ArticulosPage() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteArticle}
-        title="Eliminar Artículo"
-        description={`¿Estás seguro de que deseas eliminar el artículo "${articleToDelete?.title}"? Esta acción no se puede deshacer.`}
+        title="Archivar Artículo"
+        description={`¿Estás seguro de que deseas archivar el artículo "${articleToDelete?.title}"? Esta acción no se puede deshacer.`}
         isLoading={deleting}
       />
     </div>

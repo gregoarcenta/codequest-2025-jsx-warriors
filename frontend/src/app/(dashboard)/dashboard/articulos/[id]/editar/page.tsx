@@ -228,21 +228,21 @@ export default function EditarArticuloPage() {
       setUploadingImage(true);
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("image", file);
 
-      const response = await api.post("/uploads/post-image", formData, {
+      const response = await api.post("/upload/avatar", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
       // Assumiendo que la respuesta contiene la URL de la imagen
-      const imageUrl =
-        response.data.url || response.data.secure_url || response.data.location;
+      const imageUrl = response.data?.imageUrl || null;
 
       if (imageUrl) {
         handleInputChange("coverImageUrl", imageUrl);
         toast.success("Imagen subida correctamente");
+        await api.patch(`/posts/${articleId}`, { coverImageUrl: imageUrl });
       } else {
         toast.error("Error al procesar la imagen subida");
       }
