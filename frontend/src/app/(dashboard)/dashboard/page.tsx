@@ -314,7 +314,10 @@ export default function DashboardPage() {
                 </p>
               ) : (
                 recentPosts.map((post) => (
-                  <Link key={post.id} href={`/dashboard/articulos/${post.id}`}>
+                  <Link
+                    key={post.id}
+                    href={`/dashboard/articulos/${post.id}/editar`}
+                  >
                     <div className="flex items-start justify-between p-3 border mb-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                       <div className="flex-1 min-w-0 space-y-1">
                         <div className="flex items-center gap-2">

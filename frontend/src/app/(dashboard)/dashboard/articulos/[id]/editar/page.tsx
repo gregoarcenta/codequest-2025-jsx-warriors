@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import BlogEditor from "@/components/BlogEditor";
 import {
   Select,
   SelectContent,
@@ -23,7 +23,6 @@ import {
   Image,
   Tag,
   Star,
-  Eye,
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -77,6 +76,7 @@ export default function EditarArticuloPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [article, setArticle] = useState<Article | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
 
@@ -151,18 +151,15 @@ export default function EditarArticuloPage() {
       return;
     }
 
-    if (formData.content.trim().length < 50) {
+    // Obtener texto sin HTML para validar longitud
+    const contentText = formData.content.replace(/<[^>]*>/g, "").trim();
+    if (contentText.length < 50) {
       toast.error("El contenido debe tener al menos 50 caracteres");
       return;
     }
 
     if (!formData.categoryId) {
       toast.error("Debe seleccionar una categoría");
-      return;
-    }
-
-    if (formData.coverImageUrl && !isValidUrl(formData.coverImageUrl)) {
-      toast.error("La URL de la imagen no es válida");
       return;
     }
 
@@ -201,15 +198,6 @@ export default function EditarArticuloPage() {
     }));
   };
 
-  const isValidUrl = (url: string) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
@@ -218,6 +206,56 @@ export default function EditarArticuloPage() {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith("image/")) {
+      toast.error("Por favor selecciona un archivo de imagen válido");
+      return;
+    }
+
+    // Validar tamaño (5MB máximo)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("La imagen debe ser menor a 5MB");
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await api.post("/uploads/post-image", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      // Assumiendo que la respuesta contiene la URL de la imagen
+      const imageUrl =
+        response.data.url || response.data.secure_url || response.data.location;
+
+      if (imageUrl) {
+        handleInputChange("coverImageUrl", imageUrl);
+        toast.success("Imagen subida correctamente");
+      } else {
+        toast.error("Error al procesar la imagen subida");
+      }
+    } catch (error: any) {
+      console.error("Error uploading image:", error);
+      const errorMessage =
+        error.response?.data?.message || "Error al subir la imagen";
+      toast.error(errorMessage);
+    } finally {
+      setUploadingImage(false);
+      // Limpiar el input para permitir subir la misma imagen otra vez
+      e.target.value = "";
+    }
   };
 
   if (loading) {
@@ -272,17 +310,42 @@ export default function EditarArticuloPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild>
-          <Link href="/dashboard/articulos">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Editar Artículo</h1>
-          <p className="text-muted-foreground">
-            Modificar información de {article.title}
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" asChild>
+            <Link href="/dashboard/articulos">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Editar Artículo
+            </h1>
+            <p className="text-muted-foreground">
+              Modificar información de {article.title}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex space-x-4">
+          <Button variant="outline" asChild disabled={saving}>
+            <Link href="/dashboard/articulos">Cancelar</Link>
+          </Button>
+          <Button
+            type="submit"
+            form="article-form"
+            disabled={
+              saving ||
+              !formData.title.trim() ||
+              !formData.content.trim() ||
+              formData.content.replace(/<[^>]*>/g, "").trim().length < 50 ||
+              !formData.categoryId
+            }
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            {saving ? "Guardando..." : "Guardar Cambios"}
+          </Button>
         </div>
       </div>
 
@@ -308,7 +371,11 @@ export default function EditarArticuloPage() {
         </CardContent>
       </Card>
 
-      <form onSubmit={handleSubmit} className="w-full space-y-6">
+      <form
+        id="article-form"
+        onSubmit={handleSubmit}
+        className="w-full space-y-6"
+      >
         {/* Información Básica */}
         <Card>
           <CardHeader>
@@ -369,35 +436,86 @@ export default function EditarArticuloPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="coverImageUrl">URL de imagen de portada</Label>
+              <Label htmlFor="coverImage">Imagen de portada</Label>
               <div className="relative">
-                <Image className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  id="coverImageUrl"
-                  value={formData.coverImageUrl}
-                  onChange={(e) =>
-                    handleInputChange("coverImageUrl", e.target.value)
-                  }
-                  placeholder="https://example.com/imagen.jpg"
-                  className="pl-10"
+                {formData.coverImageUrl ? (
+                  <div className="relative group">
+                    <img
+                      src={formData.coverImageUrl}
+                      alt="Portada del artículo"
+                      className="w-full h-48 object-cover rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          onClick={() =>
+                            document
+                              .getElementById("cover-image-input")
+                              ?.click()
+                          }
+                          disabled={uploadingImage}
+                        >
+                          <Image className="h-4 w-4 mr-2" />
+                          Cambiar imagen
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleInputChange("coverImageUrl", "")}
+                          disabled={uploadingImage}
+                        >
+                          Eliminar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className={`w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                      uploadingImage ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    onClick={() =>
+                      !uploadingImage &&
+                      document.getElementById("cover-image-input")?.click()
+                    }
+                  >
+                    {uploadingImage ? (
+                      <>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                        <p className="text-gray-600 dark:text-gray-400 font-medium">
+                          Subiendo imagen...
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <Image className="h-12 w-12 text-gray-400 mb-4" />
+                        <p className="text-gray-600 dark:text-gray-400 font-medium">
+                          Haz clic para subir una imagen de portada
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+                          PNG, JPG, JPEG hasta 5MB
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
+                <input
+                  id="cover-image-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                URL de la imagen que aparecerá como portada del artículo
+                La imagen de portada aparecerá en la vista previa del artículo
                 (opcional)
               </p>
-              {formData.coverImageUrl && isValidUrl(formData.coverImageUrl) && (
-                <div className="mt-2">
-                  <img
-                    src={formData.coverImageUrl}
-                    alt="Vista previa"
-                    className="w-32 h-20 object-cover rounded border"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -412,17 +530,16 @@ export default function EditarArticuloPage() {
               <Label htmlFor="content">
                 Contenido <span className="text-red-500">*</span>
               </Label>
-              <Textarea
-                id="content"
-                value={formData.content}
-                onChange={(e) => handleInputChange("content", e.target.value)}
+              <BlogEditor
+                content={formData.content}
+                onChange={(value: string) =>
+                  handleInputChange("content", value)
+                }
                 placeholder="Escribe el contenido de tu artículo aquí..."
-                rows={15}
-                required
-                className="min-h-[300px]"
               />
               <p className="text-xs text-muted-foreground">
-                {formData.content.length} caracteres (mínimo 50)
+                {formData.content.replace(/<[^>]*>/g, "").length} caracteres
+                (mínimo 50)
               </p>
             </div>
           </CardContent>
@@ -462,87 +579,7 @@ export default function EditarArticuloPage() {
           </CardContent>
         </Card>
 
-        {/* Vista Previa */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Vista Previa
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="border rounded-lg p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {categories.find((c) => c.id === formData.categoryId) && (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                      {
-                        categories.find((c) => c.id === formData.categoryId)
-                          ?.name
-                      }
-                    </span>
-                  )}
-                  {formData.isFeatured && (
-                    <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs flex items-center gap-1">
-                      <Star className="w-3 h-3" />
-                      Destacado
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <h2 className="text-xl font-bold">
-                {formData.title || "Título del artículo"}
-              </h2>
-
-              {formData.coverImageUrl && isValidUrl(formData.coverImageUrl) && (
-                <div className="w-full h-48 rounded-lg overflow-hidden">
-                  <img
-                    src={formData.coverImageUrl}
-                    alt="Portada"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                </div>
-              )}
-
-              <div className="prose max-w-none">
-                <p className="text-muted-foreground whitespace-pre-wrap">
-                  {formData.content ||
-                    "El contenido del artículo aparecerá aquí..."}
-                </p>
-              </div>
-
-              {formData.title && (
-                <p className="text-xs text-muted-foreground">
-                  Nuevo slug: {generateSlug(formData.title)}
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Botones de Acción */}
-        <div className="flex justify-end space-x-4">
-          <Button variant="outline" asChild disabled={saving}>
-            <Link href="/dashboard/articulos">Cancelar</Link>
-          </Button>
-          <Button
-            type="submit"
-            disabled={
-              saving ||
-              !formData.title.trim() ||
-              !formData.content.trim() ||
-              !formData.categoryId
-            }
-            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {saving ? "Guardando..." : "Guardar Cambios"}
-          </Button>
-        </div>
+        {/* Botones de Acción removidos - ahora están en el header */}
       </form>
     </div>
   );

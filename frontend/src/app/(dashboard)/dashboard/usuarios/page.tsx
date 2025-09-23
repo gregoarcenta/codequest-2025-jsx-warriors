@@ -74,6 +74,11 @@ export default function UsuariosPage() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  // Estados temporales para los filtros (antes de aplicar)
+  const [tempSearchTerm, setTempSearchTerm] = useState("");
+  const [tempRoleFilter, setTempRoleFilter] = useState<string>("all");
+  const [tempStatusFilter, setTempStatusFilter] = useState<string>("all");
+
   // Stats
   const [stats, setStats] = useState({
     total: 0,
@@ -92,6 +97,13 @@ export default function UsuariosPage() {
   useEffect(() => {
     fetchUsers();
   }, [currentPage, searchTerm, roleFilter, statusFilter]);
+
+  // Sincronizar filtros temporales con los aplicados al cargar
+  useEffect(() => {
+    setTempSearchTerm(searchTerm);
+    setTempRoleFilter(roleFilter);
+    setTempStatusFilter(statusFilter);
+  }, [searchTerm, roleFilter, statusFilter]);
 
   const fetchUsers = async () => {
     try {
@@ -187,10 +199,26 @@ export default function UsuariosPage() {
   };
 
   const resetFilters = () => {
+    setTempSearchTerm("");
+    setTempRoleFilter("all");
+    setTempStatusFilter("all");
     setSearchTerm("");
     setRoleFilter("all");
     setStatusFilter("all");
     setCurrentPage(1);
+  };
+
+  const applyFilters = () => {
+    setSearchTerm(tempSearchTerm);
+    setRoleFilter(tempRoleFilter);
+    setStatusFilter(tempStatusFilter);
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = () => {
+    return (
+      searchTerm.trim() !== "" || roleFilter !== "all" || statusFilter !== "all"
+    );
   };
 
   const StatsCard = ({
@@ -267,59 +295,85 @@ export default function UsuariosPage() {
 
       {/* Filters */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filtros y Búsqueda
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1">
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            {hasActiveFilters() && (
+              <div className="flex items-center gap-2 mb-4">
+                <Badge
+                  variant="secondary"
+                  className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                >
+                  <Filter className="w-3 h-3 mr-1" />
+                  Filtros activos
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetFilters}
+                  className="text-xs h-6 px-2"
+                >
+                  Limpiar todo
+                </Button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Buscar por nombre o email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={tempSearchTerm}
+                  onChange={(e) => setTempSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
+
+              <Select value={tempRoleFilter} onValueChange={setTempRoleFilter}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Filtrar por rol" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los roles</SelectItem>
+                  <SelectItem value="admin">Administradores</SelectItem>
+                  <SelectItem value="user">Usuarios</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={tempStatusFilter}
+                onValueChange={setTempStatusFilter}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Filtrar por estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los estados</SelectItem>
+                  <SelectItem value="active">Activos</SelectItem>
+                  <SelectItem value="inactive">Inactivos</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Empty div to maintain grid alignment */}
+              <div></div>
             </div>
 
-            {/* Role Filter */}
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Filtrar por rol" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los roles</SelectItem>
-                <SelectItem value="admin">Administradores</SelectItem>
-                <SelectItem value="user">Usuarios</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Filtrar por estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los estados</SelectItem>
-                <SelectItem value="active">Activos</SelectItem>
-                <SelectItem value="inactive">Inactivos</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Reset Filters */}
-            <Button
-              variant="outline"
-              onClick={resetFilters}
-              className="w-full md:w-auto"
-            >
-              Limpiar
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Button
+                variant="outline"
+                onClick={resetFilters}
+                className="w-full sm:w-auto"
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Limpiar Filtros
+              </Button>
+              <Button
+                onClick={applyFilters}
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Aplicar Filtros
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
