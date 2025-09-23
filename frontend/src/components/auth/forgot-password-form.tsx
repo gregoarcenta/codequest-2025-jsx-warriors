@@ -140,9 +140,10 @@ export default function ForgotPasswordForm() {
       setResetLoading(true);
       await api.post("/auth/reset-password", {
         token,
-        newPassword: resetPasswordData.password,
+        password: resetPasswordData.password,
       });
       setResetSuccess(true);
+      router.push("/login");
       toast.success("Contraseña actualizada exitosamente");
     } catch (error: any) {
       const errorMessage =

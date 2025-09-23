@@ -316,7 +316,6 @@ export default function PerfilPage() {
 
       // Actualizar el usuario con la nueva imagen
       const updateResponse = await api.patch("/users/me", {
-        ...editData,
         avatarUrl: result.imageUrl,
       });
 

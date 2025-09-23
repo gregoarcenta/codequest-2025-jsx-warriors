@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -13,6 +14,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   CalendarDays,
   User,
   ArrowRight,
@@ -21,6 +29,8 @@ import {
   Heart,
   Eye,
   MessageSquare,
+  CheckCircle,
+  X,
 } from "lucide-react";
 import HeroMascot from "@/components/hero-mascot";
 import { Input } from "@/components/ui/input";
@@ -129,6 +139,9 @@ const cleanHtmlContent = (htmlContent: string): string => {
 };
 
 export default function HomeContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [featuredArticles, setFeaturedArticles] = useState<Article[]>([]);
   const [recentArticles, setRecentArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
@@ -140,6 +153,17 @@ export default function HomeContent() {
   const [email, setEmail] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
+
+  // Modal de confirmación de suscripción
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+
+  useEffect(() => {
+    // Verificar si existe el query param 'subscribe'
+    const subscribeParam = searchParams.get("subscribe");
+    if (subscribeParam === "true") {
+      setShowSubscriptionModal(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     // Fetch featured articles
@@ -227,6 +251,16 @@ export default function HomeContent() {
     } finally {
       setIsSubscribing(false);
     }
+  };
+
+  // Cerrar modal de confirmación y limpiar query param
+  const handleCloseSubscriptionModal = () => {
+    setShowSubscriptionModal(false);
+
+    // Remover el query param 'subscribe' de la URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete("subscribe");
+    router.replace(url.pathname + url.search, { scroll: false });
   };
   return (
     <>
@@ -623,6 +657,55 @@ export default function HomeContent() {
           </div>
         </div>
       </section>
+
+      {/* Modal de Confirmación de Suscripción */}
+      <Dialog
+        open={showSubscriptionModal}
+        onOpenChange={handleCloseSubscriptionModal}
+      >
+        <DialogContent className="sm:max-w-md mx-auto bg-white dark:bg-slate-900 border-0 shadow-2xl">
+          <DialogHeader className="text-center space-y-4">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+              <CheckCircle className="w-8 h-8 text-white" />
+            </div>
+
+            <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-white">
+              ¡Gracias por confirmar tu suscripción!
+            </DialogTitle>
+
+            <DialogDescription className="text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+              Te mantendremos al tanto de las últimas noticias de{" "}
+              <span className="font-semibold text-purple-600 dark:text-purple-400">
+                dev/talles blog
+              </span>
+              . Recibirás contenido exclusivo, tutoriales y las novedades más
+              importantes del mundo del desarrollo.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-3 mt-6">
+            <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Contenido semanal de calidad</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Tutoriales exclusivos</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Sin spam, solo valor</span>
+            </div>
+          </div>
+
+          <Button
+            onClick={handleCloseSubscriptionModal}
+            className="w-full mt-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-xl transition-all duration-300 hover:shadow-lg"
+          >
+            ¡Perfecto, empecemos!
+          </Button>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

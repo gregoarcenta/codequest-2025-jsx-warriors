@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, Users } from "lucide-react";
 import HeroMascot from "@/components/hero-mascot";
 import { Metadata } from "next";
 import HomeContent from "@/components/home/home-content";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Inicio",
@@ -97,7 +98,15 @@ export default function MainHomePage() {
         </div>
       </section>
 
-      <HomeContent />
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          </div>
+        }
+      >
+        <HomeContent />
+      </Suspense>
     </div>
   );
 }
