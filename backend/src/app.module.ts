@@ -13,6 +13,7 @@ import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
 import { DatabaseModule } from './database/database.module';
 import { SeedModule } from './seed/seed.module';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { SeedModule } from './seed/seed.module';
     LikesModule,
     UploadModule,
     SeedModule,
+    ContactModule,
   ],
 })
 export class AppModule {}
