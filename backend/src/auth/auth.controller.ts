@@ -35,7 +35,7 @@ import { DiscordUser } from './interfaces';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private configService: ConfigService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Post('signup')

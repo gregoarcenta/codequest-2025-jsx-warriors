@@ -15,7 +15,7 @@ export class ContactService {
     private readonly mailService: MailService,
   ) {}
   async sendContactEmail(data: ContactDto) {
-    const { email, message, subject, name, company, phone } = data;
+    const { email, message, subject, fullName, company, phone } = data;
     try {
       const newContactMessage = this.contactRepository.create({
         ...data,
@@ -24,10 +24,10 @@ export class ContactService {
 
       const bodySentContact = {
         to: this.configService.get<string>('SUPPORT_EMAIL'),
-        subject: `Nuevo mensaje de contacto de ${name}`,
+        subject: `Nuevo mensaje de contacto de ${fullName}`,
         template: 'contact-form-sent',
         context: {
-          senderName: name,
+          senderName: fullName,
           senderEmail: email,
           message,
           subject,

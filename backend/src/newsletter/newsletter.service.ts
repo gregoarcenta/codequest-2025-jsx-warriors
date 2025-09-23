@@ -56,7 +56,7 @@ export class NewsletterService {
 
   async confirmSubscription(token: string) {
     const repo = this.subscriberRepository;
-    const subscriber = await this.subscriberRepository.findOne({
+    const subscriber = await repo.findOne({
       where: { confirmationToken: token },
     });
 
@@ -71,24 +71,30 @@ export class NewsletterService {
     subscriber.isConfirmed = true;
     subscriber.confirmedAt = new Date();
     subscriber.confirmationToken = null; // Remove token after confirmation
-    await this.subscriberRepository.save(subscriber);
-
+    await repo.save(subscriber);
     return { message: 'Email successfully confirmed. Thank you!' };
   }
 
   private async sendConfirmationEmail(subscriber: Subscriber) {
-    const appUrl = this.configService.get<string>('APP_URL');
-    const confirmationLink = `${appUrl}/confirm-subscription?token=${subscriber.confirmationToken}`;
+    const appUrl = this.configService.get<string>('BACKEND_URL');
+    const confirmationLink = `${appUrl}/api/newsletter/confirm?token=${subscriber.confirmationToken}`;
 
-    // Aquí llamas a tu servicio de correo con la plantilla de confirmación
-    await this.mailService.sendEmail({
-      to: subscriber.email,
-      subject: 'Confirm your subscription',
-      template: 'confirmation-email', // Tendrás que crear esta plantilla
-      context: {
-        appName: this.configService.get<string>('APP_NAME'),
-        confirmationLink: confirmationLink,
-      },
-    });
+    try {
+      await this.mailService.sendEmail({
+        to: subscriber.email,
+        subject: 'Confirma tu subscripción',
+        template: 'confirmation-email',
+        context: {
+          appName: this.configService.get<string>('APP_NAME'),
+          confirmationLink,
+        },
+      });
+    } catch (error) {
+      console.error(
+        `Error sending confirmation email to ${subscriber.email}:`,
+        error,
+      );
+      throw error;
+    }
   }
 }

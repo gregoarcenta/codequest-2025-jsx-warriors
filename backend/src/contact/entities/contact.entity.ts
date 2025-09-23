@@ -20,8 +20,8 @@ export class Contact {
     description: 'Name of the sender',
     example: 'Alex A',
   })
-  @Column({ type: 'varchar', length: 100 })
-  name: string;
+  @Column({ type: 'varchar', length: 100, name: 'full_name' })
+  fullName: string;
 
   @ApiProperty({
     description: 'Email address of the sender',

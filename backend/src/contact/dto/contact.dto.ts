@@ -17,7 +17,7 @@ export class ContactDto {
   @IsString()
   @Length(3, 100)
   @Transform(({ value }) => value.trim())
-  name: string;
+  fullName: string;
 
   @ApiProperty({
     description: 'Correo electrónico de contacto',
