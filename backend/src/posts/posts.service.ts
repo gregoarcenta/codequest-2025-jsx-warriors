@@ -144,11 +144,18 @@ export class PostsService {
     user: User,
   ): Promise<PostResponse> {
     return this.executeQuery(async () => {
+      const { status } = createPostDto;
+
       const post = this.postRepository.create({
         ...createPostDto,
         author: user,
         category: { id: createPostDto.categoryId },
       });
+
+
+      if (!status || status === PostStatus.PUBLISHED) {
+        post.publishedAt = new Date();
+      }
 
       await this.postRepository.save(post);
       return this.findOne(post.id);

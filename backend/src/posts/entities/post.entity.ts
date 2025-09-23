@@ -66,7 +66,7 @@ export class Post {
     enum: PostStatus,
     default: 'draft',
   })
-  @Column({ type: 'enum', enum: PostStatus, default: PostStatus.DRAFT })
+  @Column({ type: 'enum', enum: PostStatus, default: PostStatus.PUBLISHED })
   status: PostStatus;
 
   @ApiProperty({

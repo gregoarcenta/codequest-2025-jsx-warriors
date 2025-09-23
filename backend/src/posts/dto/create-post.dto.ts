@@ -6,8 +6,10 @@ import {
   Length,
   IsUrl,
   IsBoolean,
+  IsEnum,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { PostStatus } from '../enums/post-status';
 
 export class CreatePostDto {
   @ApiProperty({
@@ -46,6 +48,17 @@ export class CreatePostDto {
   @IsBoolean()
   @IsOptional()
   isFeatured?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Post status',
+    example: 'draft',
+    enum: PostStatus,
+    default: 'Published',
+  })
+  @IsEnum(PostStatus)
+  @IsOptional()
+  @IsString()
+  status?: PostStatus;
 
   @ApiPropertyOptional({
     description: 'Category ID',
