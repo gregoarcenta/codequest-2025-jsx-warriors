@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const { slug } = await params;
     const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/";
+      process.env.NEXT_PUBLIC_API_URL_DOCKER || "http://localhost:3001/api/";
     const resp = await fetch(
       `${apiUrl}/posts/published/${slug}`,
       { next: { revalidate: 3600 } } // Cache for 1 hour
