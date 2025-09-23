@@ -1,6 +1,7 @@
 import ListArticles from "@/components/articulos/list-articles";
 import { BookOpen } from "lucide-react";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Articulos",
@@ -42,7 +43,15 @@ export default function ArticlesPage() {
       </section>
 
       {/* Main Content */}
-      <ListArticles />
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          </div>
+        }
+      >
+        <ListArticles />
+      </Suspense>
     </div>
   );
 }

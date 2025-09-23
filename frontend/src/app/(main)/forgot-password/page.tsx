@@ -1,5 +1,6 @@
 import ForgotPasswordForm from "@/components/auth/forgot-password-form";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Olvidaste tu contraseña",
@@ -32,7 +33,15 @@ export default function ForgotPasswordPage() {
       </section>
 
       {/* Forgot Password Form Section */}
-      <ForgotPasswordForm />
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          </div>
+        }
+      >
+        <ForgotPasswordForm />
+      </Suspense>
     </div>
   );
 }
