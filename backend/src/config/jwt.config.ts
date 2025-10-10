@@ -9,7 +9,7 @@ export class JwtConfigService implements JwtOptionsFactory {
   createJwtOptions(): JwtModuleOptions {
     return {
       secret: this.configService.get('JWT_SECRET'),
-      signOptions: { expiresIn: '7d' },
+      // signOptions: { expiresIn: '7d' },
     };
   }
 }

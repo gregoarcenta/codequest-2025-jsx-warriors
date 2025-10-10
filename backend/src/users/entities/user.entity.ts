@@ -47,7 +47,7 @@ export class User {
 
   @ApiProperty({
     description: 'User email',
-    example: 'test@test.com',
+    example: 'test@correo.com',
     uniqueItems: true,
   })
   @Column({ type: 'varchar', length: 254, unique: true })

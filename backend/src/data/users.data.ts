@@ -15,8 +15,15 @@ export const USERS_DATA: Partial<User>[] = [
     id: '9bd4f59c-3e6c-4742-9905-4501b526f34f',
     fullName: 'Normal User',
     email: 'user@correo.com',
-    password: bcrypt.hashSync('Pass123', 10),
+    password: bcrypt.hashSync('User123', 10),
     bio: 'Soy un usuario normal que me gusta leer y comentar en los posts.',
     roles: [Role.USER],
+  },
+  {
+    id: '9bd4f59c-3e6c-4742-1321-4501b526f14c',
+    fullName: 'Test User',
+    email: 'test@correo.com',
+    password: bcrypt.hashSync('Test123', 10),
+    roles: [Role.TEST],
   },
 ];

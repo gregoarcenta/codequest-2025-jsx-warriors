@@ -8,7 +8,7 @@ import {
 import { Transform } from 'class-transformer';
 
 export class SignInDto {
-  @ApiProperty({ description: 'SignIn email', example: 'test@test.com' })
+  @ApiProperty({ description: 'SignIn email', example: 'test@correo.com' })
   @IsString()
   @IsEmail()
   @IsLowercase()

@@ -15,7 +15,7 @@ export class SignUpDto {
   @Transform(({ value }) => value.toLowerCase().trim())
   fullName: string;
 
-  @ApiProperty({ description: 'SignUp email', example: 'test@test.com' })
+  @ApiProperty({ description: 'SignUp email', example: 'test@correo.com' })
   @IsString()
   @IsEmail()
   @IsLowercase()

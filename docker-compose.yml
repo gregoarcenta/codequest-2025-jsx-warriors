@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:17.2
-    container_name: postgresdb
+    container_name: postgres_codequest
     ports:
       - "5432:5432"
     env_file: ./backend/.env
